@@ -1,0 +1,2 @@
+-keep class com.thousandlabs.soulking.** { *; }
+-dontwarn org.jetbrains.annotations.**
