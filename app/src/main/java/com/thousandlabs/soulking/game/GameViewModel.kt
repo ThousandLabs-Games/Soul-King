@@ -545,6 +545,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         val ratio = time.toFloat() / (clipMs * 2f)
         var pts = 100 + (100 * (1f - ratio)).toInt().coerceIn(0, 100)
         if (g.replayUsed) pts /= 2
+        if (g.doubleRound) pts *= 2
         val players = g.players.mapIndexed { i, s ->
             if (i == p) {
                 val streak = s.streak + 1
@@ -628,6 +629,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     private fun finish() {
         cancelJobs()
         stopAudio()
+        // solo : record personnel pour cette source
+        val g = _game.value
+        if (g.solo) {
+            val key = "record:" + norm(g.sourceName) + ":" + g.roundCount + ":" + gameCfg.clipSec
+            val best = Prefs.getInt(key, -1)
+            val score = g.players.first().score
+            val record = score > 0 && score > best
+            if (record) Prefs.putInt(key, score)
+            _game.update { it.copy(bestBefore = best.takeIf { b -> b >= 0 }, newRecord = record) }
+        }
         history.clear()
         history.addLast(Screen.HOME)
         _screen.value = Screen.PODIUM

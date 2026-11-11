@@ -95,6 +95,8 @@ fun HowToScreen(vm: GameViewModel) {
             ))
             GuideCard(Icons.Outlined.EmojiEvents, "5. Les points", listOf(
                 "Bonne réponse : 100 points, plus jusqu'à 100 points de bonus selon la rapidité.",
+                "La dernière manche compte double (réglage « Dernière manche à points doubles »).",
+                "En solo, Soul King garde votre record pour chaque thème.",
                 "À la fin : podium, réponse la plus rapide, meilleure série. « Revanche » relance avec de nouveaux morceaux.",
                 "Un morceau déjà joué ne revient pas avant longtemps.",
                 "Mauvaise version (instrumental, reprise, remix) ? Touchez « Mauvaise version ? » à la révélation : elle ne sera plus jamais proposée.",
@@ -219,60 +221,13 @@ fun AboutScreen(vm: GameViewModel) {
                 )
             }
 
-            SectionTitle("Nouveautés")
-            ReleaseNotes("Version 1.8", listOf(
-                "Ma musique : les noms de téléchargement sont nettoyés comme dans Tone Dial (sites, « Official Video », numéros, noms collés)",
-                "L'artiste est retrouvé même quand il n'est écrit que dans le nom du fichier : beaucoup plus d'artistes reconnus",
-                "Import du catalogue Tone Dial : noms corrigés, openings reconnus, favoris, plus écoutés et playlists",
-                "Un artiste apparaît dans Ma musique à partir de 3 morceaux",
-                "Pour deviner l'artiste, les morceaux sans artiste reconnu sont mis de côté",
-            ))
-            ReleaseNotes("Version 1.7", listOf(
-                "Génériques et tubes : la version officielle passe avant les reprises de compilations (Phinéas et Ferb…)",
-                "Les génériques d'avant 2023 passent avant les nouvelles versions et les reboots (Dragon Ball Z, Teen Titans, Ben 10, Tortues Ninja…)",
-                "La version trouvée est gardée : le même générique revient à chaque fois, et le chargement est plus rapide",
-                "Une version écartée avec « Mauvaise version ? » est aussitôt remplacée par une autre à la partie suivante",
-            ))
-            ReleaseNotes("Version 1.6", listOf(
-                "Génériques : plus de versions instrumentales pour les dessins animés qui ont des paroles (Bob l'éponge…)",
-                "Les musiques de films ne sont plus prises pour des génériques (Avatar, Kung Fu Panda, Lilo et Stitch…)",
-                "Si la version française d'un générique est introuvable, l'appli cherche la version originale",
-            ))
-            ReleaseNotes("Version 1.5", listOf(
-                "Génériques : les versions instrumentales sont écartées",
-                "Nouveau bouton « Mauvaise version ? » à la révélation : la version n'est plus jamais proposée",
-                "Les versions écartées peuvent être rétablies dans À propos",
-            ))
-            ReleaseNotes("Version 1.4", listOf(
-                "À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique",
-                "Génériques : le nom de l'émission doit figurer dans le titre ou l'album, plus dans le nom d'un artiste",
-                "Les Simpson : le vrai générique de Danny Elfman",
-            ))
-            ReleaseNotes("Version 1.3", listOf(
-                "Thèmes refaits pour la Gen Z : Rap US, R&B US, Rap français, Hits mondiaux et Classiques",
-                "Nouveau réglage « Le moment le plus connu » : l'extrait part du refrain",
-                "« Retenir ce passage » pendant la révélation : le morceau démarrera là la prochaine fois",
-                "« L'artiste » désigne toujours le chanteur, et « L'animé » devient un choix à part",
-                "En « Titre et artiste », le chanteur s'affiche sous chaque proposition, même dans les thèmes animés",
-                "Génériques : version originale quand c'est elle qu'on connaît (Ninjago, Teen Titans, Sonic X…)",
-                "Fini les remix, reprises et versions IA : l'appli garde la version la plus écoutée",
-                "Pochettes plus légères, cache limité à 5 Mo et bouton pour vider les fichiers temporaires",
-            ))
-            ReleaseNotes("Version 1.2", listOf(
-                "Spécial One Piece : les 29 openings, jusqu'à UUUUUS!, Tenshi to Akuma, Carmine et Luminous",
-                "Hits mondiaux refait : près de 90 tubes planétaires choisis un par un",
-                "Génériques : plus de 50 dessins animés de Gulli, Nickelodeon, Disney Channel et Cartoon Network, en version française",
-                "Pour les génériques, la question devient « Trouvez le dessin animé »",
-                "Rap US, Drill, R&B, Rap français : uniquement les morceaux les plus connus de chaque artiste",
-            ))
-            ReleaseNotes("Première version", listOf(
-                    "10 thèmes prêts à jouer, dont Openings cultes et Spécial One Piece",
-                    "Recherche libre : artiste, genre, animé, playlist",
-                    "Ma musique : jouez avec les morceaux du téléphone, hors ligne",
-                    "Mode mixte : vos openings complètent les thèmes en ligne",
-                    "Buzzers pour 1 à 4 joueurs sur un seul téléphone",
-                    "Réponses en 4 propositions ou à l'oral avec arbitre",
-                "Podium et records de la partie",
+            SectionTitle("Nouveautés de la version ${BuildConfig.VERSION_NAME}")
+            ReleaseNotes(listOf(
+                "Dernière manche à points doubles, pour garder le suspense jusqu'au bout (désactivable dans les réglages)",
+                "En solo : record personnel pour chaque thème, et « Nouveau record » sur le podium",
+                "Ma musique : noms de téléchargement nettoyés comme dans Tone Dial, beaucoup plus d'artistes reconnus",
+                "Import du catalogue Tone Dial : noms corrigés, openings, favoris, plus écoutés et playlists",
+                "Génériques : versions officielles et d'avant 2023 privilégiées, bouton « Mauvaise version ? »",
             ))
 
             SectionTitle("Vos données")
@@ -340,12 +295,12 @@ private fun formatBytes(b: Long): String = when {
 }
 
 @Composable
-private fun ReleaseNotes(title: String, lines: List<String>) {
+private fun ReleaseNotes(lines: List<String>) {
     InfoCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.NewReleases, null, tint = Sk.Gold)
             Spacer(Modifier.width(10.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Sk.Text)
+            Text("Ce qui change", style = MaterialTheme.typography.titleMedium, color = Sk.Text)
         }
         Spacer(Modifier.height(8.dp))
         lines.forEach { Text("•  $it", style = MaterialTheme.typography.bodyMedium, color = Sk.TextDim, modifier = Modifier.padding(vertical = 2.dp)) }

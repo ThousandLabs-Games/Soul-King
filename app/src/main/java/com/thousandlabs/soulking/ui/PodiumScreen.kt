@@ -75,6 +75,21 @@ fun PodiumScreen(vm: GameViewModel) {
                 style = MaterialTheme.typography.bodyLarge,
                 color = Sk.TextDim,
             )
+            Spacer(Modifier.height(10.dp))
+            when {
+                g.newRecord -> Text(
+                    if (g.bestBefore != null) "Nouveau record ! L'ancien était de ${g.bestBefore} points." else "Premier record sur ce thème !",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Sk.Gold,
+                    textAlign = TextAlign.Center,
+                )
+                g.bestBefore != null -> Text(
+                    "Votre record sur ce thème : ${g.bestBefore} points",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Sk.TextDim,
+                    textAlign = TextAlign.Center,
+                )
+            }
         } else {
             val tie = ranked.size > 1 && ranked[0].value.score == ranked[1].value.score
             Text(

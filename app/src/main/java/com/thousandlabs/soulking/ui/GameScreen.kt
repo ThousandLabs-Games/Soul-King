@@ -171,8 +171,27 @@ private fun Board(g: GameUi, vm: GameViewModel) {
 // ---------------------------------------------------------------- compte à rebours
 
 @Composable
+private fun DoubleBadge() {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .background(Sk.GoldDim)
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Outlined.Bolt, null, tint = Sk.Gold, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Text("Dernière manche : points doubles", style = MaterialTheme.typography.labelLarge, color = Sk.Gold)
+    }
+}
+
+@Composable
 private fun Countdown(g: GameUi) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+        if (g.doubleRound) {
+            DoubleBadge()
+            Spacer(Modifier.height(12.dp))
+        }
         Text(g.prompt, style = MaterialTheme.typography.titleMedium, color = Sk.TextDim)
         Spacer(Modifier.height(8.dp))
         AnimatedContent(
@@ -206,6 +225,10 @@ private fun Listening(g: GameUi, vm: GameViewModel) {
             .padding(horizontal = 20.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (g.doubleRound) {
+            DoubleBadge()
+            Spacer(Modifier.height(10.dp))
+        }
         Text(g.prompt, style = MaterialTheme.typography.titleMedium, color = Sk.TextDim)
         Spacer(Modifier.height(14.dp))
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(if (showChoices) 120.dp else 170.dp)) {

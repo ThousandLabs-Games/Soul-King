@@ -34,6 +34,8 @@ data class GameConfig(
     val includeLocal: Boolean = true,
     val sounds: Boolean = true,
     val vibrations: Boolean = true,
+    /** La dernière manche rapporte deux fois plus. */
+    val doubleLast: Boolean = true,
 ) {
     fun save() {
         Prefs.putInt("cfg_rounds", rounds)
@@ -44,6 +46,7 @@ data class GameConfig(
         Prefs.putBool("cfg_local", includeLocal)
         Prefs.putBool("cfg_sounds", sounds)
         Prefs.putBool("cfg_vibrations", vibrations)
+        Prefs.putBool("cfg_double", doubleLast)
     }
 
     companion object {
@@ -59,6 +62,7 @@ data class GameConfig(
             includeLocal = Prefs.getBool("cfg_local", true),
             sounds = Prefs.getBool("cfg_sounds", true),
             vibrations = Prefs.getBool("cfg_vibrations", true),
+            doubleLast = Prefs.getBool("cfg_double", true),
         )
     }
 }
@@ -107,6 +111,11 @@ data class GameUi(
     val hookMarked: Boolean = false,
     /** Image de l'animé ou du dessin animé, si elle a été trouvée. */
     val showImage: String? = null,
+    /** Dernière manche à points doubles. */
+    val doubleRound: Boolean = false,
+    /** Solo : meilleur score précédent sur ce thème, et nouveau record battu. */
+    val bestBefore: Int? = null,
+    val newRecord: Boolean = false,
     /** Le morceau en cours vient d'être écarté. */
     val banned: Boolean = false,
     /** Message bref affiché pendant la manche. */

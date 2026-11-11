@@ -237,6 +237,7 @@ fun SetupScreen(vm: GameViewModel, ensureAudio: (() -> Unit) -> Unit) {
             item { SectionTitle("Ambiance") }
             item {
                 InfoCard {
+                    ToggleLine("Dernière manche à points doubles", cfg.doubleLast) { on -> vm.updateConfig { it.copy(doubleLast = on) } }
                     ToggleLine("Sons du jeu", cfg.sounds) { on -> vm.updateConfig { it.copy(sounds = on) } }
                     ToggleLine("Vibrations", cfg.vibrations) { on -> vm.updateConfig { it.copy(vibrations = on) } }
                 }

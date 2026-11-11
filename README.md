@@ -50,6 +50,8 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 
 ### 5. Les points
 - Bonne réponse : 100 points, plus jusqu'à 100 points de bonus selon la rapidité.
+- La dernière manche compte double (réglage « Dernière manche à points doubles »).
+- En solo, Soul King garde votre record pour chaque thème.
 - Fin de partie : podium, réponse la plus rapide, meilleure série, plus de bonnes réponses.
 - « Revanche » relance avec de nouveaux morceaux : un morceau déjà joué ne revient pas avant longtemps.
 - Mauvaise version (instrumental, reprise, remix) ? « Mauvaise version ? » à la révélation l'écarte pour toujours. À propos permet de tout rétablir.
@@ -74,6 +76,11 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ---
 
 ## Nouveautés
+
+### Version 1.9
+- Dernière manche à points doubles, désactivable dans les réglages
+- En solo : record personnel pour chaque thème, et « Nouveau record » sur le podium
+- L'écran À propos ne montre plus que les nouveautés de la dernière version (l'historique complet reste ici)
 
 ### Version 1.8
 - Ma musique : les noms de téléchargement sont nettoyés comme dans Tone Dial (sites, « Official Video », numéros, noms collés)
