@@ -1,6 +1,7 @@
 package com.thousandlabs.soulking.game
 
 import android.app.Application
+import android.net.Uri
 import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -18,6 +19,7 @@ import com.thousandlabs.soulking.data.LocalMusic
 import com.thousandlabs.soulking.data.PoolBuilder
 import com.thousandlabs.soulking.data.Prefs
 import com.thousandlabs.soulking.data.Source
+import com.thousandlabs.soulking.data.ToneDialCatalog
 import com.thousandlabs.soulking.data.Track
 import com.thousandlabs.soulking.data.norm
 import com.thousandlabs.soulking.data.showLike
@@ -84,8 +86,54 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         if (localJob?.isActive == true) return
         if (_local.value != null && !force) return
         localJob = viewModelScope.launch {
-            _local.value = withContext(Dispatchers.IO) { runCatching { LocalMusic.load(ctx) }.getOrDefault(emptyList()) }
+            val tracks = withContext(Dispatchers.IO) { runCatching { LocalMusic.load(ctx) }.getOrDefault(emptyList()) }
+            _local.value = tracks
+            refreshToneDial(tracks)
         }
+    }
+
+    // ---- catalogue Tone Dial ----
+    private val _toneDial = MutableStateFlow(ToneDialState())
+    val toneDial: StateFlow<ToneDialState> = _toneDial.asStateFlow()
+
+    data class ToneDialState(
+        val imported: Boolean = false,
+        val groups: List<LocalMusic.Group> = emptyList(),
+        val busy: Boolean = false,
+        val message: String? = null,
+    )
+
+    private fun refreshToneDial(tracks: List<Track>) {
+        _toneDial.update {
+            it.copy(imported = ToneDialCatalog.exists(ctx), groups = LocalMusic.toneDialGroups(ctx, tracks))
+        }
+    }
+
+    fun importToneDial(uri: Uri) {
+        _toneDial.update { it.copy(busy = true, message = null) }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val data = ToneDialCatalog.import(ctx, uri)
+                    val tracks = LocalMusic.load(ctx)
+                    data to tracks
+                }
+            }
+            result.onSuccess { (data, tracks) ->
+                _local.value = tracks
+                refreshToneDial(tracks)
+                val found = tracks.count { data.find(it.key.removePrefix("local:").toLongOrNull() ?: -1, null) != null }
+                _toneDial.update { it.copy(busy = false, message = "Catalogue importé : $found morceaux reconnus, ${data.playlists.size} playlist(s).") }
+            }.onFailure { e ->
+                _toneDial.update { it.copy(busy = false, message = e.message ?: "Import impossible.") }
+            }
+        }
+    }
+
+    fun removeToneDial() {
+        ToneDialCatalog.clear(ctx)
+        _toneDial.value = ToneDialState(message = "Catalogue Tone Dial retiré.")
+        loadLocal(force = true)
     }
 
     fun localMatches(source: Source?): Int {
@@ -223,9 +271,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 val locals = if (!useLocal) emptyList() else _local.value
                     ?: withContext(Dispatchers.IO) { LocalMusic.load(ctx) }.also { _local.value = it }
 
-                val built = PoolBuilder.build(src, locals, useLocal, cfg.rounds) { msg ->
+                val raw = PoolBuilder.build(src, locals, useLocal, cfg.rounds) { msg ->
                     _game.update { it.copy(loadingText = msg) }
                 }
+                val built0 = raw
+                // pour deviner l'artiste, les morceaux sans artiste reconnu sont mis de côté
+                val wantsArtist = cfg.target == GuessTarget.ARTIST || cfg.target == GuessTarget.BOTH
+                val withArtist = built0.filter { it.artistKnown }
+                val built = if (wantsArtist && withArtist.size >= 4 && withArtist.size < built0.size) withArtist else built0
                 if (built.size < 4) {
                     fail(
                         if (src is Source.Local) "Il faut au moins 4 morceaux pour lancer une partie."

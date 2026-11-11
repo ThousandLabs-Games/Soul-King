@@ -1,5 +1,7 @@
 package com.thousandlabs.soulking.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +23,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.LiveTv
 import androidx.compose.material.icons.outlined.MusicOff
@@ -110,6 +115,10 @@ fun SearchScreen(vm: GameViewModel) {
 @Composable
 fun LocalScreen(vm: GameViewModel) {
     val tracks by vm.local.collectAsState()
+    val td by vm.toneDial.collectAsState()
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) vm.importToneDial(uri)
+    }
     Column(Modifier.fillMaxSize()) {
         TopBar("Ma musique", onBack = vm::back, actions = {
             IconButton(onClick = { vm.loadLocal(force = true) }) {
@@ -139,6 +148,49 @@ fun LocalScreen(vm: GameViewModel) {
                             onClick = { vm.choose(Source.Local(LocalMusic.Filter("Toute ma musique", LocalMusic.Kind.ALL))) },
                         )
                     }
+
+                    item { SectionTitle("Catalogue Tone Dial") }
+                    if (td.groups.isNotEmpty()) {
+                        items(td.groups, key = { "td" + it.filter.kind + it.filter.label }) { g ->
+                            val icon = when (g.filter.kind) {
+                                LocalMusic.Kind.FAVORITES -> Icons.Outlined.FavoriteBorder
+                                LocalMusic.Kind.MOST_PLAYED -> Icons.Outlined.Whatshot
+                                else -> Icons.AutoMirrored.Outlined.QueueMusic
+                            }
+                            SourceRow(icon, null, title = g.filter.label, subtitle = "${g.count} morceaux", onClick = { vm.choose(Source.Local(g.filter)) })
+                        }
+                    }
+                    item {
+                        InfoCard {
+                            Text(
+                                if (td.imported) "Les noms corrigés, les openings reconnus, vos favoris, vos plus écoutés et vos playlists de Tone Dial sont utilisés."
+                                else "Retrouvez ici vos noms corrigés, vos openings reconnus, vos favoris, vos plus écoutés et vos playlists de Tone Dial. " +
+                                    "Dans Tone Dial : Menu › Réglages › « Sauvegarder mes données », puis choisissez ce fichier ici.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Sk.TextDim,
+                            )
+                            td.message?.let {
+                                Spacer(Modifier.height(8.dp))
+                                Text(it, style = MaterialTheme.typography.bodySmall, color = Sk.Gold)
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            if (td.busy) {
+                                CircularProgressIndicator(color = Sk.Gold)
+                            } else {
+                                GoldButton(
+                                    if (td.imported) "Importer une sauvegarde plus récente" else "Importer ma sauvegarde Tone Dial",
+                                    Icons.Outlined.FileOpen,
+                                    onClick = { picker.launch(arrayOf("application/zip", "application/json", "application/octet-stream", "*/*")) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                if (td.imported) {
+                                    Spacer(Modifier.height(8.dp))
+                                    GhostButton("Retirer le catalogue Tone Dial", null, onClick = vm::removeToneDial, modifier = Modifier.fillMaxWidth())
+                                }
+                            }
+                        }
+                    }
+
                     if (animes.isNotEmpty()) {
                         item { SectionTitle("Animés") }
                         items(animes, key = { "an" + it.filter.label }) { g ->
@@ -153,7 +205,9 @@ fun LocalScreen(vm: GameViewModel) {
                     }
                     item {
                         Text(
-                            "Vos fichiers ne quittent jamais le téléphone. Les animés sont reconnus quand l'artiste est écrit « Nom de l'animé Opening 12 ».",
+                            "Vos fichiers ne quittent jamais le téléphone. Les noms de téléchargement sont nettoyés automatiquement " +
+                                "(sites, « Official Video », numéros) et l'artiste est retrouvé quand il est écrit avant le titre. " +
+                                "Un artiste apparaît ici à partir de 3 morceaux.",
                             style = MaterialTheme.typography.bodySmall,
                             color = Sk.TextDim,
                             modifier = Modifier.padding(top = 12.dp),

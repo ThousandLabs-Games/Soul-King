@@ -99,6 +99,12 @@ fun HowToScreen(vm: GameViewModel) {
                 "Un morceau déjà joué ne revient pas avant longtemps.",
                 "Mauvaise version (instrumental, reprise, remix) ? Touchez « Mauvaise version ? » à la révélation : elle ne sera plus jamais proposée.",
             ))
+            GuideCard(Icons.Outlined.LibraryMusic, "Votre catalogue Tone Dial", listOf(
+                "Dans Tone Dial : Menu › Réglages › « Sauvegarder mes données ».",
+                "Dans Soul King : Ma musique › « Importer ma sauvegarde Tone Dial », puis choisissez le fichier.",
+                "Soul King reprend vos noms corrigés et vos openings reconnus, et propose de jouer avec vos favoris, vos plus écoutés et vos playlists.",
+                "Après de nouvelles corrections dans Tone Dial, refaites une sauvegarde et importez-la à nouveau.",
+            ))
             GuideCard(Icons.Outlined.LibraryMusic, "Astuce : vos openings", listOf(
                 "Nommez vos fichiers « One Piece Opening 25 - The Peak » : Soul King reconnaît l'animé et le numéro de l'opening.",
                 "Dans « Spécial One Piece » et « Openings cultes », vos fichiers s'ajoutent automatiquement aux morceaux en ligne.",
@@ -214,6 +220,13 @@ fun AboutScreen(vm: GameViewModel) {
             }
 
             SectionTitle("Nouveautés")
+            ReleaseNotes("Version 1.8", listOf(
+                "Ma musique : les noms de téléchargement sont nettoyés comme dans Tone Dial (sites, « Official Video », numéros, noms collés)",
+                "L'artiste est retrouvé même quand il n'est écrit que dans le nom du fichier : beaucoup plus d'artistes reconnus",
+                "Import du catalogue Tone Dial : noms corrigés, openings reconnus, favoris, plus écoutés et playlists",
+                "Un artiste apparaît dans Ma musique à partir de 3 morceaux",
+                "Pour deviner l'artiste, les morceaux sans artiste reconnu sont mis de côté",
+            ))
             ReleaseNotes("Version 1.7", listOf(
                 "Génériques et tubes : la version officielle passe avant les reprises de compilations (Phinéas et Ferb…)",
                 "Les génériques d'avant 2023 passent avant les nouvelles versions et les reboots (Dragon Ball Z, Teen Titans, Ben 10, Tortues Ninja…)",

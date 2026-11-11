@@ -29,6 +29,8 @@ data class Track(
 ) {
     val isLocal: Boolean get() = localUri != null
 
+    val artistKnown: Boolean get() = artist.isNotBlank() && artist != LocalMusic.UNKNOWN
+
     /** Ce qu'il faut deviner à la place de l'artiste : l'animé quand il est connu. */
     val who: String get() = anime ?: artist
 

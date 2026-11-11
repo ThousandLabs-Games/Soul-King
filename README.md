@@ -54,6 +54,11 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 - « Revanche » relance avec de nouveaux morceaux : un morceau déjà joué ne revient pas avant longtemps.
 - Mauvaise version (instrumental, reprise, remix) ? « Mauvaise version ? » à la révélation l'écarte pour toujours. À propos permet de tout rétablir.
 
+### Votre catalogue Tone Dial
+1. Dans Tone Dial : Menu › Réglages › « Sauvegarder mes données ».
+2. Dans Soul King : Ma musique › « Importer ma sauvegarde Tone Dial », puis choisissez le fichier.
+3. Soul King reprend vos noms corrigés et vos openings reconnus, et propose de jouer avec vos favoris, vos plus écoutés et vos playlists. Le fichier reste dans l'espace privé de Soul King.
+
 ### Astuce : vos openings
 Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'animé (One Piece) et le numéro de l'opening.
 
@@ -69,6 +74,13 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ---
 
 ## Nouveautés
+
+### Version 1.8
+- Ma musique : les noms de téléchargement sont nettoyés comme dans Tone Dial (sites, « Official Video », numéros, noms collés)
+- L'artiste est retrouvé même quand il n'est écrit que dans le nom du fichier : beaucoup plus d'artistes reconnus
+- Import du catalogue Tone Dial : noms corrigés, openings reconnus, favoris, plus écoutés et playlists
+- Un artiste apparaît dans Ma musique à partir de 3 morceaux
+- Pour deviner l'artiste, les morceaux sans artiste reconnu sont mis de côté
 
 ### Version 1.7
 - Génériques et tubes : la version officielle passe avant les reprises de compilations (Phinéas et Ferb…)
