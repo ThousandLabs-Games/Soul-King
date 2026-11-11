@@ -24,6 +24,8 @@ data class Track(
     val rawTitle: String? = null,
     /** Popularité sur Deezer : entre deux versions, on garde la plus écoutée (l'originale). */
     val rank: Int = 0,
+    /** Le morceau vient d'un animé ou d'un dessin animé : son image sert de pochette. */
+    val artKind: ArtKind? = null,
 ) {
     val isLocal: Boolean get() = localUri != null
 

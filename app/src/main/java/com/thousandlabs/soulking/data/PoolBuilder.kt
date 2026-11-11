@@ -158,6 +158,7 @@ object PoolBuilder {
                             .filter { !isJunk(it) && matchesCurated(it, c) }
                             .maxByOrNull { it.rank }
                             ?.let { listOf(it.copy(anime = c.anime ?: def.forceAnime)) }
+                            ?.map { if (it.anime != null) it.copy(artKind = if (def.whoOnly) ArtKind.CARTOON else ArtKind.ANIME) else it }
                     }.getOrNull() ?: emptyList()
                     tick()
                     r
@@ -165,7 +166,7 @@ object PoolBuilder {
             }
         }
         val all = (artistJobs + playlistJobs + curatedJobs).awaitAll().flatten()
-        if (def.forceAnime != null) all.map { if (it.anime == null) it.copy(anime = def.forceAnime) else it } else all
+        if (def.forceAnime != null) all.map { if (it.anime == null) it.copy(anime = def.forceAnime, artKind = ArtKind.ANIME) else it } else all
     }
 
     private val stopWords = setOf("les", "le", "la", "et", "de", "des", "du", "the", "and", "l", "d")
@@ -176,7 +177,9 @@ object PoolBuilder {
             // générique : le nom de l'émission doit apparaître dans le titre complet, l'album ou l'artiste
             val texts = listOfNotNull(t.rawTitle, t.title, t.album, t.artist)
             if (texts.any { looseJunk.containsMatchIn(it) }) return false
-            val hay = normKeep(texts.joinToString(" "))
+            // le nom de l'émission doit être dans le titre ou l'album, jamais seulement dans le nom de l'artiste
+            // (sinon « Les Simpson » trouverait une chanson de Jessica Simpson)
+            val hay = normKeep(listOfNotNull(t.rawTitle, t.title, t.album).joinToString(" "))
             if (c.needsMarker && !themeMarker.containsMatchIn(hay)) return false
             return (listOf(c.title) + c.alts).any { name ->
                 val words = normKeep(name).split(" ").filter { it.length >= 2 && it !in stopWords }

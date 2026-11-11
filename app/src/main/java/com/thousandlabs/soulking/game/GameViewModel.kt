@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.thousandlabs.soulking.data.ArtSearch
 import com.thousandlabs.soulking.data.Deezer
 import com.thousandlabs.soulking.data.LocalMusic
 import com.thousandlabs.soulking.data.PoolBuilder
@@ -305,9 +306,11 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 outcome = null,
                 showAnswer = false,
                 hookMarked = Prefs.hook(track.key) != null,
+                showImage = null,
             )
         }
         prepare(track)
+        fetchShowImage(track)
         roundJob = viewModelScope.launch {
             for (n in 3 downTo 1) {
                 _game.update { it.copy(countdown = n) }
@@ -318,6 +321,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             _game.update { it.copy(stage = Stage.PLAYING, flash = null) }
             player.play()
             startTicker()
+        }
+    }
+
+    /** Cherche l'image de l'animé ou du dessin animé pendant le compte à rebours. */
+    private fun fetchShowImage(track: Track) {
+        val kind = track.artKind ?: return
+        val name = track.anime ?: return
+        viewModelScope.launch {
+            val url = withContext(Dispatchers.IO) { ArtSearch.find(kind, name) } ?: return@launch
+            if (_game.value.track?.key == track.key) _game.update { it.copy(showImage = url) }
         }
     }
 

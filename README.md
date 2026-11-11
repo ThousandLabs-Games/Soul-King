@@ -61,12 +61,18 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ## Vos données
 - Vos fichiers musicaux ne quittent jamais le téléphone.
 - En ligne, seule la recherche tapée est envoyée au catalogue Deezer, qui fournit des extraits officiels de 30 secondes.
+- Pour les animés et dessins animés, seul le nom de l'émission est envoyé à MyAnimeList (via Jikan) ou TVmaze, pour afficher son image.
 - L'accès à la musique du téléphone n'est demandé que lorsque vous utilisez « Ma musique » ou le mode mixte.
 - Autorisations : fichiers audio, Internet, vibrations, installation des mises à jour. Rien d'autre.
 
 ---
 
 ## Nouveautés
+
+### Version 1.4
+- À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique
+- Génériques : le nom de l'émission doit figurer dans le titre ou l'album, plus dans le nom d'un artiste
+- Les Simpson : le vrai générique de Danny Elfman
 
 ### Version 1.3
 - Thèmes refaits pour la Gen Z : Rap US, R&B US, Rap français, Hits mondiaux et Classiques

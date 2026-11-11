@@ -449,7 +449,7 @@ object Themes {
             cartoon("Mes parrains sont magiques"),
             cartoon("Wakfu"),
             cartoon("Détective Conan"),
-            cartoon("Les Simpson"),
+            cartoonOriginal("Les Simpson", "The Simpsons Main Title Theme Danny Elfman", "Simpsons"),
             cartoon("Dora l'exploratrice"),
         ),
         whoWord = "le dessin animé",

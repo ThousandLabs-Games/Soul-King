@@ -77,6 +77,7 @@ object LocalMusic {
                         artist = artist,
                         anime = anime,
                         label = label,
+                        artKind = if (anime != null) ArtKind.ANIME else null,
                         localUri = ContentUris.withAppendedId(collection, id),
                         artUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), c.getLong(albumCol)),
                         durationMs = c.getLong(durCol),

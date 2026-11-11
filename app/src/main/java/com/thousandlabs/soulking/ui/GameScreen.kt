@@ -456,7 +456,7 @@ private fun Reveal(g: GameUi, vm: GameViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(8.dp))
-        Box(Modifier.scale(appear)) { Cover(track.cover, 210.dp, corner = 22.dp) }
+        Box(Modifier.scale(appear)) { Cover(g.showImage ?: track.cover, 210.dp, corner = 22.dp) }
         Spacer(Modifier.height(16.dp))
         // quand on devine l'animé ou le dessin animé, c'est lui qu'on met en avant
         val showFirst = g.target == GuessTarget.SHOW && track.anime != null

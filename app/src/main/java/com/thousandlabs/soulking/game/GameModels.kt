@@ -105,6 +105,8 @@ data class GameUi(
     val showAnswer: Boolean = false,
     /** Le moment le plus connu de ce morceau a été marqué. */
     val hookMarked: Boolean = false,
+    /** Image de l'animé ou du dessin animé, si elle a été trouvée. */
+    val showImage: String? = null,
     /** Message bref affiché pendant la manche. */
     val flash: String? = null,
     /** Information sur la partie entière. */

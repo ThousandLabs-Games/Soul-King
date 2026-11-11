@@ -212,6 +212,11 @@ fun AboutScreen(vm: GameViewModel) {
             }
 
             SectionTitle("Nouveautés")
+            ReleaseNotes("Version 1.4", listOf(
+                "À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique",
+                "Génériques : le nom de l'émission doit figurer dans le titre ou l'album, plus dans le nom d'un artiste",
+                "Les Simpson : le vrai générique de Danny Elfman",
+            ))
             ReleaseNotes("Version 1.3", listOf(
                 "Thèmes refaits pour la Gen Z : Rap US, R&B US, Rap français, Hits mondiaux et Classiques",
                 "Nouveau réglage « Le moment le plus connu » : l'extrait part du refrain",
@@ -246,7 +251,8 @@ fun AboutScreen(vm: GameViewModel) {
                     Spacer(Modifier.width(10.dp))
                     Text(
                         "Aucun compte, aucune publicité, aucun suivi. Vos fichiers musicaux ne quittent jamais le téléphone. " +
-                            "En ligne, seule votre recherche est envoyée au catalogue Deezer pour obtenir les extraits officiels de 30 secondes.",
+                            "En ligne, seule votre recherche est envoyée au catalogue Deezer pour obtenir les extraits officiels de 30 secondes, " +
+                        "et le nom de l'animé ou du dessin animé à MyAnimeList (Jikan) ou TVmaze pour afficher son image.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Sk.TextDim,
                     )
