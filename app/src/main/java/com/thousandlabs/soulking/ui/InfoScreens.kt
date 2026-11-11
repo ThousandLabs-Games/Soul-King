@@ -97,6 +97,7 @@ fun HowToScreen(vm: GameViewModel) {
                 "Bonne réponse : 100 points, plus jusqu'à 100 points de bonus selon la rapidité.",
                 "À la fin : podium, réponse la plus rapide, meilleure série. « Revanche » relance avec de nouveaux morceaux.",
                 "Un morceau déjà joué ne revient pas avant longtemps.",
+                "Mauvaise version (instrumental, reprise, remix) ? Touchez « Mauvaise version ? » à la révélation : elle ne sera plus jamais proposée.",
             ))
             GuideCard(Icons.Outlined.LibraryMusic, "Astuce : vos openings", listOf(
                 "Nommez vos fichiers « One Piece Opening 25 - The Peak » : Soul King reconnaît l'animé et le numéro de l'opening.",
@@ -135,6 +136,7 @@ fun AboutScreen(vm: GameViewModel) {
     val state by Updater.state.collectAsState()
     var auto by remember { mutableStateOf(Updater.autoEnabled()) }
     var recent by remember { mutableStateOf(Prefs.recentCount()) }
+    var bannedCount by remember { mutableStateOf(Prefs.bannedCount()) }
     var cacheBytes by remember { mutableStateOf(cacheSize(ctx.cacheDir)) }
 
     Column(Modifier.fillMaxSize()) {
@@ -212,6 +214,11 @@ fun AboutScreen(vm: GameViewModel) {
             }
 
             SectionTitle("Nouveautés")
+            ReleaseNotes("Version 1.5", listOf(
+                "Génériques : les versions instrumentales sont écartées",
+                "Nouveau bouton « Mauvaise version ? » à la révélation : la version n'est plus jamais proposée",
+                "Les versions écartées peuvent être rétablies dans À propos",
+            ))
             ReleaseNotes("Version 1.4", listOf(
                 "À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique",
                 "Génériques : le nom de l'émission doit figurer dans le titre ou l'album, plus dans le nom d'un artiste",
@@ -264,6 +271,15 @@ fun AboutScreen(vm: GameViewModel) {
                     onClick = { Prefs.clearRecent(); recent = 0 },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                if (bannedCount > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    GhostButton(
+                        "Rétablir les $bannedCount versions écartées",
+                        null,
+                        onClick = { Prefs.unbanAll(); bannedCount = 0 },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             SectionTitle("Stockage")

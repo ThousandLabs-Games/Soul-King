@@ -107,6 +107,8 @@ data class GameUi(
     val hookMarked: Boolean = false,
     /** Image de l'animé ou du dessin animé, si elle a été trouvée. */
     val showImage: String? = null,
+    /** Le morceau en cours vient d'être écarté. */
+    val banned: Boolean = false,
     /** Message bref affiché pendant la manche. */
     val flash: String? = null,
     /** Information sur la partie entière. */

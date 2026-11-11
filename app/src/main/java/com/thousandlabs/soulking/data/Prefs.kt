@@ -77,4 +77,15 @@ object Prefs {
     }
 
     fun hookCount(): Int = hooks().length()
+
+    // ---- versions écartées par l'utilisateur : plus jamais proposées ----
+    fun banned(): Set<String> = list("banned").toHashSet()
+
+    fun ban(key: String) {
+        val merged = (list("banned").filter { it != key } + key).takeLast(2000)
+        putString("banned", JSONArray(merged).toString())
+    }
+
+    fun unbanAll() = putString("banned", "[]")
+    fun bannedCount(): Int = list("banned").size
 }

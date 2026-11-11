@@ -52,6 +52,7 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 - Bonne réponse : 100 points, plus jusqu'à 100 points de bonus selon la rapidité.
 - Fin de partie : podium, réponse la plus rapide, meilleure série, plus de bonnes réponses.
 - « Revanche » relance avec de nouveaux morceaux : un morceau déjà joué ne revient pas avant longtemps.
+- Mauvaise version (instrumental, reprise, remix) ? « Mauvaise version ? » à la révélation l'écarte pour toujours. À propos permet de tout rétablir.
 
 ### Astuce : vos openings
 Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'animé (One Piece) et le numéro de l'opening.
@@ -68,6 +69,11 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ---
 
 ## Nouveautés
+
+### Version 1.5
+- Génériques : les versions instrumentales sont écartées
+- Nouveau bouton « Mauvaise version ? » à la révélation : la version n'est plus jamais proposée
+- Les versions écartées peuvent être rétablies dans À propos
 
 ### Version 1.4
 - À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique

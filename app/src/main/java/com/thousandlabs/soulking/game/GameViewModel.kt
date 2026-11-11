@@ -307,6 +307,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 showAnswer = false,
                 hookMarked = Prefs.hook(track.key) != null,
                 showImage = null,
+                banned = false,
             )
         }
         prepare(track)
@@ -377,6 +378,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         val pos = (player.currentPosition - 1_500L).coerceAtLeast(0L)
         Prefs.setHook(t.key, pos)
         _game.update { it.copy(hookMarked = true) }
+    }
+
+    /** Mauvaise version (instrumental, reprise…) : ne sera plus jamais proposée, on passe à la suite. */
+    fun banTrack() {
+        val g = _game.value
+        val t = g.track ?: return
+        if (g.stage != Stage.REVEAL) return
+        Prefs.ban(t.key)
+        _game.update { it.copy(banned = true) }
     }
 
     fun clearHook() {

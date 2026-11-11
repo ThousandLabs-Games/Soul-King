@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.BookmarkAdded
@@ -540,6 +541,32 @@ private fun Reveal(g: GameUi, vm: GameViewModel) {
                 Text(
                     if (g.hookMarked) "Touchez pour l'oublier. Touchez à nouveau pendant la bonne partie pour le remplacer."
                     else "Touchez pendant le moment le plus connu : la prochaine fois, l'extrait démarrera là",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Sk.TextDim,
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Sk.Surface)
+                .clickable(enabled = !g.banned) { vm.banTrack() }
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Outlined.Block, null, tint = if (g.banned) Sk.TextDim else Sk.Bad)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (g.banned) "Version écartée" else "Mauvaise version ?",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Sk.Text,
+                )
+                Text(
+                    if (g.banned) "Elle ne sera plus jamais proposée. Une autre version sera cherchée la prochaine fois."
+                    else "Instrumental, reprise, remix : touchez pour ne plus jamais la jouer",
                     style = MaterialTheme.typography.bodySmall,
                     color = Sk.TextDim,
                 )

@@ -60,7 +60,7 @@ object PoolBuilder {
 
     /** Pour les génériques, encore plus strict : aucune version retravaillée. */
     private val looseJunk = Regex(
-        """\b(trap|drill|funk|techno|house|hardstyle|dubstep|rock version|metal|epic|orchestral|piano|guitar|guitare|beat|vibe|chill)\b""",
+        """\b(instrumental|instru|trap|drill|funk|techno|house|hardstyle|dubstep|rock version|metal|epic|orchestral|piano|guitar|guitare|beat|vibe|chill)\b""",
         RegexOption.IGNORE_CASE,
     )
 
@@ -69,8 +69,11 @@ object PoolBuilder {
         """\b(generique|theme|opening|intro|title|main title|song|serie|series|tv|dessin|cartoon|original|soundtrack|bande originale)\b""",
     )
 
+    @Volatile
+    private var banned: Set<String> = emptySet()
+
     private fun isJunk(t: Track): Boolean =
-        listOfNotNull(t.rawTitle, t.title, t.artist, t.album).any { junk.containsMatchIn(it) }
+        t.key in banned || listOfNotNull(t.rawTitle, t.title, t.artist, t.album).any { junk.containsMatchIn(it) }
 
     fun matchesLocal(def: ThemeDef, t: Track): Boolean {
         def.localAnime?.let { anime ->
@@ -93,6 +96,7 @@ object PoolBuilder {
         needed: Int,
         progress: (String) -> Unit,
     ): List<Track> = withContext(Dispatchers.IO) {
+        banned = Prefs.banned()
         val online: List<Track> = when (source) {
             is Source.Theme -> fromTheme(source.def, needed, progress)
             is Source.Artist -> Deezer.artistTop(source.id, 100)
@@ -102,8 +106,8 @@ object PoolBuilder {
         }.filterNot { isJunk(it) }
 
         val locals: List<Track> = when (source) {
-            is Source.Local -> LocalMusic.filter(local, source.filter)
-            is Source.Theme -> if (includeLocal) local.filter { matchesLocal(source.def, it) } else emptyList()
+            is Source.Local -> LocalMusic.filter(local, source.filter).filter { it.key !in banned }
+            is Source.Theme -> if (includeLocal) local.filter { it.key !in banned && matchesLocal(source.def, it) } else emptyList()
             else -> emptyList()
         }
         // les fichiers du téléphone passent en premier : en cas de doublon, c'est eux qu'on garde
