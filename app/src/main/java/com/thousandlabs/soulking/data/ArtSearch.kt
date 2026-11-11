@@ -33,7 +33,7 @@ object ArtSearch {
         "Miraculous" to "Miraculous: Tales of Ladybug & Cat Noir",
         "Les Lapins Crétins" to "Rabbids Invasion",
         "Souvenirs de Gravity Falls" to "Gravity Falls",
-        "Kung Fu Panda" to "Kung Fu Panda: Legends of Awesomeness",
+        "Kung Fu Panda : L'Incroyable Légende" to "Kung Fu Panda: Legends of Awesomeness",
         "Totally Spies" to "Totally Spies!",
         "Bob l'éponge" to "SpongeBob SquarePants",
         "Oggy et les Cafards" to "Oggy and the Cockroaches",
@@ -49,7 +49,7 @@ object ArtSearch {
         "Digimon" to "Digimon Adventure",
         "Olive et Tom" to "Captain Tsubasa",
         "Zig et Sharko" to "Zig & Sharko",
-        "Lilo et Stitch" to "Lilo & Stitch: The Series",
+        "Lilo et Stitch, la série" to "Lilo & Stitch: The Series",
         "Les Tortues Ninja" to "Teenage Mutant Ninja Turtles",
         "Les Zinzins de l'espace" to "Space Goofs",
         "Foster, la maison des amis imaginaires" to "Foster's Home for Imaginary Friends",
@@ -65,6 +65,9 @@ object ArtSearch {
         "Dora l'exploratrice" to "Dora the Explorer",
         "Yu-Gi-Oh!" to "Yu-Gi-Oh!",
     ).mapKeys { norm(it.key) }
+
+    /** Nom anglais (ou d'origine) d'une émission, quand on le connaît. */
+    fun englishName(show: String): String = searchNames[norm(show)] ?: show
 
     private fun cacheKey(kind: ArtKind, name: String) = "${kind.name}:${norm(name)}"
 

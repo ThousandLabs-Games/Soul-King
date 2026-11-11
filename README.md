@@ -71,6 +71,11 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ## Nouveautés
 
 ### Version 1.5
+- Génériques : plus de versions instrumentales pour les dessins animés qui ont des paroles (Bob l'éponge…)
+- Les musiques de films ne sont plus prises pour des génériques (Avatar, Kung Fu Panda, Lilo et Stitch…)
+- Si la version française d'un générique est introuvable, l'appli cherche la version originale
+
+### Version 1.5
 - Génériques : les versions instrumentales sont écartées
 - Nouveau bouton « Mauvaise version ? » à la révélation : la version n'est plus jamais proposée
 - Les versions écartées peuvent être rétablies dans À propos

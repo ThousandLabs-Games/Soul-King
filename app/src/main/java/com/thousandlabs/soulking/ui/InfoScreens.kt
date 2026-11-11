@@ -219,6 +219,11 @@ fun AboutScreen(vm: GameViewModel) {
                 "Nouveau bouton « Mauvaise version ? » à la révélation : la version n'est plus jamais proposée",
                 "Les versions écartées peuvent être rétablies dans À propos",
             ))
+            ReleaseNotes("Version 1.5", listOf(
+                "Génériques : plus de versions instrumentales pour les dessins animés qui ont des paroles (Bob l'éponge…)",
+                "Les musiques de films ne sont plus prises pour des génériques (Avatar, Kung Fu Panda, Lilo et Stitch…)",
+                "Si la version française d'un générique est introuvable, l'appli cherche la version originale",
+            ))
             ReleaseNotes("Version 1.4", listOf(
                 "À la révélation, l'image de l'animé ou du dessin animé remplace la pochette générique",
                 "Génériques : le nom de l'émission doit figurer dans le titre ou l'album, plus dans le nom d'un artiste",

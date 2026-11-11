@@ -64,9 +64,11 @@ object PoolBuilder {
         RegexOption.IGNORE_CASE,
     )
 
-    /** Un générique officiel est presque toujours présenté comme tel. */
+    private val instrumentalWord = Regex("""\b(instrumental|instru|karaoke|playback)\b""", RegexOption.IGNORE_CASE)
+
+    /** Un générique officiel est présenté comme tel (les bandes originales de films ne comptent pas). */
     private val themeMarker = Regex(
-        """\b(generique|theme|opening|intro|title|main title|song|serie|series|tv|dessin|cartoon|original|soundtrack|bande originale)\b""",
+        """\b(generique|generiques|theme|theme song|opening|intro|main title|serie|series|tv|dessin anime|dessins animes|cartoon|cartoons)\b""",
     )
 
     @Volatile
@@ -157,10 +159,23 @@ object PoolBuilder {
             async {
                 gate.withPermit {
                     val r = runCatching {
-                        // parmi les résultats valides, la version la plus écoutée : c'est l'originale
-                        Deezer.searchTracks(c.query ?: "${c.title} ${c.artist}".trim(), 15)
-                            .filter { !isJunk(it) && matchesCurated(it, c) }
-                            .maxByOrNull { it.rank }
+                        // version française d'abord ; si elle est introuvable, la version originale anglaise
+                        val english = ArtSearch.englishName(c.title)
+                        val attempts = buildList {
+                            add((c.query ?: "${c.title} ${c.artist}".trim()) to c)
+                            if (c.loose && c.needsMarker && !english.equals(c.title, ignoreCase = true)) {
+                                add("$english theme song" to c.copy(alts = c.alts + english))
+                            }
+                        }
+                        var found: Track? = null
+                        for ((q, check) in attempts) {
+                            // parmi les résultats valides, la version la plus écoutée : c'est l'originale
+                            found = Deezer.searchTracks(q, 15)
+                                .filter { !isJunk(it) && matchesCurated(it, check) }
+                                .maxByOrNull { it.rank }
+                            if (found != null) break
+                        }
+                        found
                             ?.let { listOf(it.copy(anime = c.anime ?: def.forceAnime)) }
                             ?.map { if (it.anime != null) it.copy(artKind = if (def.whoOnly) ArtKind.CARTOON else ArtKind.ANIME) else it }
                     }.getOrNull() ?: emptyList()
@@ -181,6 +196,7 @@ object PoolBuilder {
             // générique : le nom de l'émission doit apparaître dans le titre complet, l'album ou l'artiste
             val texts = listOfNotNull(t.rawTitle, t.title, t.album, t.artist)
             if (texts.any { looseJunk.containsMatchIn(it) }) return false
+            if (!c.instrumentalOk && texts.any { instrumentalWord.containsMatchIn(it) }) return false
             // le nom de l'émission doit être dans le titre ou l'album, jamais seulement dans le nom de l'artiste
             // (sinon « Les Simpson » trouverait une chanson de Jessica Simpson)
             val hay = normKeep(listOfNotNull(t.rawTitle, t.title, t.album).joinToString(" "))
