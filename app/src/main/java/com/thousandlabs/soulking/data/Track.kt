@@ -19,6 +19,9 @@ data class Track(
     val artUri: Uri? = null,
     val durationMs: Long = 30_000,
     val deezerId: Long? = null,
+    /** Album et titre complet : servent seulement à vérifier les morceaux choisis à la main. */
+    val album: String? = null,
+    val rawTitle: String? = null,
 ) {
     val isLocal: Boolean get() = localUri != null
 
@@ -30,7 +33,7 @@ data class Track(
     val cover: Any? get() = coverUrl ?: artUri
 
     /** Deux versions du même morceau comptent pour un seul. */
-    val dedupeKey: String get() = norm(title) + "|" + norm(artist.substringBefore(",").substringBefore(" feat"))
+    val dedupeKey: String get() = norm(title) + "|" + norm(artist.substringBefore(",").substringBefore(" feat")) + "|" + norm(anime ?: "")
 }
 
 private val marks = Regex("\\p{M}+")
@@ -42,5 +45,12 @@ fun norm(s: String): String =
     Normalizer.normalize(s.lowercase(), Normalizer.Form.NFD)
         .replace(marks, "")
         .replace(brackets, " ")
+        .replace(nonAlnum, " ")
+        .trim()
+
+/** Comme [norm], mais garde le contenu des parenthèses (« Générique de Code Lyoko »). */
+fun normKeep(s: String): String =
+    Normalizer.normalize(s.lowercase(), Normalizer.Form.NFD)
+        .replace(marks, "")
         .replace(nonAlnum, " ")
         .trim()

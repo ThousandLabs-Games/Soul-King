@@ -199,7 +199,13 @@ fun SetupScreen(vm: GameViewModel, ensureAudio: (() -> Unit) -> Unit) {
             }
 
             item { SectionTitle("À deviner") }
-            item {
+            if ((src as? Source.Theme)?.def?.whoOnly == true) item {
+                Text(
+                    "Pour ce thème, il faut trouver ${(src as Source.Theme).def.whoWord ?: "l'émission"}.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Sk.TextDim,
+                )
+            } else item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     GuessTarget.entries.forEach { t ->
                         SkChip(t.label, cfg.target == t, onClick = { vm.updateConfig { it.copy(target = t) } })

@@ -23,7 +23,7 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 ## Comment jouer
 
 ### 1. Choisir la musique
-- **Thèmes prêts à jouer** : Rap US, Drill, R&B US, Grands classiques, Hits mondiaux, Hits du moment, Openings cultes, Spécial One Piece, Génériques de dessins animés, Rap français.
+- **Thèmes prêts à jouer** : Rap US, Drill, R&B US, Grands classiques, Hits mondiaux, Hits du moment, Openings cultes, Spécial One Piece (29 openings), Génériques de dessins animés (chaînes francophones), Rap français.
 - **Recherche libre** : tapez un artiste, un genre ou un animé. Soul King trouve les morceaux tout seul (artiste, playlists, titres liés).
 - **Ma musique** : jouez avec les morceaux du téléphone, même sans connexion. Toute la bibliothèque, un artiste ou un animé.
 - **Mode mixte** : dans les thèmes, l'option « Ajouter mes morceaux » mélange vos fichiers aux extraits en ligne. Idéal pour compléter Spécial One Piece avec vos openings.
@@ -66,6 +66,13 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ---
 
 ## Nouveautés
+
+### Version 1.2
+- Spécial One Piece : les 29 openings, jusqu'à *UUUUUS!*, *Tenshi to Akuma*, *Carmine* et *Luminous*
+- Hits mondiaux refait : près de 90 tubes planétaires choisis un par un (7 Years, Shape of You, Despacito, Waka Waka…)
+- Génériques : plus de 50 dessins animés de Gulli, Nickelodeon, Disney Channel et Cartoon Network, en version française (Code Lyoko, Totally Spies, Pokémon, Ben 10, Kim Possible…)
+- Pour les génériques, la question devient « Trouvez le dessin animé »
+- Rap US, Drill, R&B, Rap français : uniquement les morceaux les plus connus de chaque artiste
 
 ### Version 1
 - 10 thèmes prêts à jouer, dont Openings cultes et Spécial One Piece

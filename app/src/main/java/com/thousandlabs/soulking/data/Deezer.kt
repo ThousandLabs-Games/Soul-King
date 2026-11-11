@@ -87,6 +87,8 @@ object Deezer {
             previewUrl = preview,
             durationMs = 30_000,
             deezerId = id,
+            album = album?.str("title")?.ifBlank { null },
+            rawTitle = o.str("title").ifBlank { null },
         )
     }
 

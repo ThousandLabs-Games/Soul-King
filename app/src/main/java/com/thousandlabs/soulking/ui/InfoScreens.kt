@@ -65,7 +65,8 @@ fun HowToScreen(vm: GameViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             GuideCard(Icons.Outlined.Search, "1. Choisir la musique", listOf(
-                "Touchez un thème (Rap US, Drill, Openings cultes, Spécial One Piece…).",
+                "Touchez un thème (Rap US, Drill, Hits mondiaux, Openings cultes, Spécial One Piece, Génériques…).",
+                "Pour les génériques de dessins animés, il faut trouver le dessin animé.",
                 "Ou tapez ce que vous voulez dans la recherche : un artiste, un genre, un animé. Soul King trouve les morceaux tout seul.",
                 "Ou « Ma musique » pour jouer avec les morceaux du téléphone, même sans connexion.",
             ))
@@ -202,23 +203,22 @@ fun AboutScreen(vm: GameViewModel) {
             }
 
             SectionTitle("Nouveautés")
-            InfoCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.NewReleases, null, tint = Sk.Gold)
-                    Spacer(Modifier.width(10.dp))
-                    Text("Première version", style = MaterialTheme.typography.titleMedium, color = Sk.Text)
-                }
-                Spacer(Modifier.height(8.dp))
-                listOf(
+            ReleaseNotes("Version 1.2", listOf(
+                "Spécial One Piece : les 29 openings, jusqu'à UUUUUS!, Tenshi to Akuma, Carmine et Luminous",
+                "Hits mondiaux refait : près de 90 tubes planétaires choisis un par un",
+                "Génériques : plus de 50 dessins animés de Gulli, Nickelodeon, Disney Channel et Cartoon Network, en version française",
+                "Pour les génériques, la question devient « Trouvez le dessin animé »",
+                "Rap US, Drill, R&B, Rap français : uniquement les morceaux les plus connus de chaque artiste",
+            ))
+            ReleaseNotes("Première version", listOf(
                     "10 thèmes prêts à jouer, dont Openings cultes et Spécial One Piece",
                     "Recherche libre : artiste, genre, animé, playlist",
                     "Ma musique : jouez avec les morceaux du téléphone, hors ligne",
                     "Mode mixte : vos openings complètent les thèmes en ligne",
                     "Buzzers pour 1 à 4 joueurs sur un seul téléphone",
                     "Réponses en 4 propositions ou à l'oral avec arbitre",
-                    "Podium et records de la partie",
-                ).forEach { Text("•  $it", style = MaterialTheme.typography.bodyMedium, color = Sk.TextDim, modifier = Modifier.padding(vertical = 2.dp)) }
-            }
+                "Podium et records de la partie",
+            ))
 
             SectionTitle("Vos données")
             InfoCard {
@@ -247,6 +247,19 @@ fun AboutScreen(vm: GameViewModel) {
             LinkRow(CrownIcon, "Thousand Labs Games", SITE_URL) { uri.openUri(SITE_URL) }
             Spacer(Modifier.height(16.dp))
         }
+    }
+}
+
+@Composable
+private fun ReleaseNotes(title: String, lines: List<String>) {
+    InfoCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.NewReleases, null, tint = Sk.Gold)
+            Spacer(Modifier.width(10.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium, color = Sk.Text)
+        }
+        Spacer(Modifier.height(8.dp))
+        lines.forEach { Text("•  $it", style = MaterialTheme.typography.bodyMedium, color = Sk.TextDim, modifier = Modifier.padding(vertical = 2.dp)) }
     }
 }
 

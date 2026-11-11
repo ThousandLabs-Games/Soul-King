@@ -89,7 +89,9 @@ object PoolBuilder {
     }
 
     private suspend fun fromTheme(def: ThemeDef, needed: Int, progress: (String) -> Unit): List<Track> = coroutineScope {
-        val total = def.artists.size + def.playlists.size + def.curated.size
+        // grandes listes : on ne cherche qu'un échantillon, assez pour la partie et les remplaçants
+        val curatedPick = def.curated.shuffled().take(needed * 2 + 12)
+        val total = def.artists.size + def.playlists.size + curatedPick.size
         val done = AtomicInteger(0)
         progress("Préparation de la playlist…")
         fun tick() {
@@ -98,7 +100,7 @@ object PoolBuilder {
         }
         val gate = Semaphore(6)
         val perArtist = if (def.artists.isEmpty()) 0
-        else ceil(needed * 2.5 / def.artists.size).toInt().coerceIn(6, 25)
+        else ceil(needed * 2.5 / def.artists.size).toInt().coerceIn(4, 12)
 
         val artistJobs = def.artists.map { name ->
             async {
@@ -125,11 +127,11 @@ object PoolBuilder {
                 }
             }
         }
-        val curatedJobs = def.curated.map { c ->
+        val curatedJobs = curatedPick.map { c ->
             async {
                 gate.withPermit {
                     val r = runCatching {
-                        Deezer.searchTracks("${c.title} ${c.artist}", 8).firstOrNull { matchesCurated(it, c) }
+                        Deezer.searchTracks(c.query ?: "${c.title} ${c.artist}".trim(), 10).firstOrNull { matchesCurated(it, c) }
                             ?.let { listOf(it.copy(anime = c.anime ?: def.forceAnime)) }
                     }.getOrNull() ?: emptyList()
                     tick()
@@ -141,11 +143,23 @@ object PoolBuilder {
         if (def.forceAnime != null) all.map { if (it.anime == null) it.copy(anime = def.forceAnime) else it } else all
     }
 
+    private val stopWords = setOf("les", "le", "la", "et", "de", "des", "du", "the", "and", "l", "d")
+
     /** Le résultat trouvé est-il bien le morceau demandé (et pas une reprise) ? */
     private fun matchesCurated(t: Track, c: Curated): Boolean {
-        val want = norm(c.title)
+        if (c.loose) {
+            // générique : le nom de l'émission doit apparaître dans le titre complet, l'album ou l'artiste
+            val hay = normKeep(listOfNotNull(t.rawTitle, t.title, t.album, t.artist).joinToString(" "))
+            return (listOf(c.title) + c.alts).any { name ->
+                val words = normKeep(name).split(" ").filter { it.length >= 2 && it !in stopWords }
+                words.isNotEmpty() && words.all { w -> Regex("\\b${Regex.escape(w)}").containsMatchIn(hay) }
+            }
+        }
         val got = norm(t.title)
-        val titleOk = got == want || got.startsWith("$want ") || (want.length >= 5 && got.contains(want))
+        val titleOk = (listOf(c.title) + c.alts).any { title ->
+            val want = norm(title)
+            want.isNotEmpty() && (got == want || got.startsWith("$want ") || (want.length >= 5 && got.contains(want)))
+        }
         if (!titleOk) return false
         val wantArtist = norm(c.artist).split(" ").filter { it.length >= 2 }
         val gotArtist = norm(t.artist)

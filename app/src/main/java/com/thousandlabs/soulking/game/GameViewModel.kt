@@ -244,14 +244,20 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
                 // deviner l'artiste n'a pas de sens si tous les morceaux sont du même artiste
                 val distinctWho = built.map { norm(it.who) }.distinct().size
-                val target = if (cfg.answer == AnswerMode.QCM && cfg.target != GuessTarget.TITLE && distinctWho < 4) GuessTarget.TITLE else cfg.target
+                val themeDef = (src as? Source.Theme)?.def
+                val target = when {
+                    themeDef?.whoOnly == true -> GuessTarget.ARTIST
+                    cfg.answer == AnswerMode.QCM && cfg.target != GuessTarget.TITLE && distinctWho < 4 -> GuessTarget.TITLE
+                    else -> cfg.target
+                }
                 val animeShare = built.count { it.anime != null }.toFloat() / built.size
+                val whoWord = themeDef?.whoWord ?: if (animeShare >= 0.5f) "l'animé" else "l'artiste"
 
                 _game.update {
                     it.copy(
                         roundCount = count,
                         target = target,
-                        whoWord = if (animeShare >= 0.5f) "l'animé" else "l'artiste",
+                        whoWord = whoWord,
                         notice = if (count < cfg.rounds) "Seulement $count morceaux disponibles : la partie compte $count manches." else null,
                     )
                 }

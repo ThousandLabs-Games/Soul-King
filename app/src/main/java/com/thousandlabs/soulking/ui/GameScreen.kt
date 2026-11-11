@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import com.thousandlabs.soulking.game.AnswerMode
 import com.thousandlabs.soulking.game.GameUi
 import com.thousandlabs.soulking.game.GameViewModel
+import com.thousandlabs.soulking.game.GuessTarget
 import com.thousandlabs.soulking.game.Stage
 
 @Composable
@@ -451,11 +452,14 @@ private fun Reveal(g: GameUi, vm: GameViewModel) {
         Spacer(Modifier.height(8.dp))
         Box(Modifier.scale(appear)) { Cover(track.cover, 210.dp, corner = 22.dp) }
         Spacer(Modifier.height(16.dp))
-        Text(track.title, style = MaterialTheme.typography.headlineSmall, color = Sk.Text, textAlign = TextAlign.Center)
+        // quand on devine l'animé ou le dessin animé, c'est lui qu'on met en avant
+        val showFirst = g.target == GuessTarget.ARTIST && track.anime != null
+        Text(if (showFirst) track.anime ?: track.title else track.title, style = MaterialTheme.typography.headlineSmall, color = Sk.Text, textAlign = TextAlign.Center)
         Text(
             buildString {
+                if (showFirst) append(track.title).append(" · ")
                 append(track.artist)
-                track.anime?.let { if (!it.equals(track.artist, ignoreCase = true)) append(" · ").append(it) }
+                if (!showFirst) track.anime?.let { if (!it.equals(track.artist, ignoreCase = true)) append(" · ").append(it) }
                 track.label?.let { append(" · ").append(it) }
             },
             style = MaterialTheme.typography.bodyLarge,
