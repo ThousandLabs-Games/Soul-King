@@ -78,9 +78,51 @@ object TagCleaner {
             }
         }
 
-        title = spaces.replace(title, " ").trim().trim('-', '–', '_', ' ')
+        title = extraClean(title)
+        title = spaces.replace(title, " ").trim().trim('-', '–', '_', ' ', '|', '.', '…')
         if (title.isBlank()) title = rawTitle.trim()
-        return Result(title, artist?.let { spaces.replace(it, " ").trim() }?.takeIf { it.isNotBlank() })
+        return Result(title, artist?.let { cleanArtist(it) }?.takeIf { it.isNotBlank() })
+    }
+
+    // ---- nettoyage supplémentaire propre à Soul King : mentions sans parenthèses, en français et en anglais ----
+
+    /** « Musique officielle », « Clip officiel », « Official Music Video »… écrits sans parenthèses. */
+    private val officialMention = Regex(
+        """\s*[-–—|:]?\s*\b(?:(?:clip|vid[ée]o|audio|musique|son|music video|video ?clip|lyrics?(?: video)?|paroles|visuali[sz]er)\s+(?:officiel(?:le)?|official)|(?:official|officiel(?:le)?)\s+(?:music\s+)?(?:video|vid[ée]o|audio|clip|lyrics?(?: video)?|visuali[sz]er))\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /** Ce qui suit « | » ou « // » : nom de la chaîne, du site, mots-clés. */
+    private val pipeTail = Regex("""\s+(?:[|│]|//)\s+.*$""")
+
+    /** Parenthèse jamais refermée en fin de titre (titre coupé par le site) contenant une mention parasite. */
+    private val openTail = Regex(
+        """\s*[(\[{【][^)\]}】]*\b(?:official|officiel|clip|video|vid[ée]o|audio|lyrics?|paroles|prod|visuali[sz]er)[^)\]}】]*$""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    private val qualityTag = Regex("""\s*[(\[]?\b(?:1080p|720p|480p|360p|2160p|4k|uhd|full hd|hd|hq|320 ?kbps|128 ?kbps)\b[)\]]?""", RegexOption.IGNORE_CASE)
+
+    private val lyricsTail = Regex("""\s*[-–—]\s*(?:lyrics?|paroles|audio|clip|visuali[sz]er|music video)\s*$""", RegexOption.IGNORE_CASE)
+
+    private fun extraClean(raw: String): String {
+        var t = raw
+        t = pipeTail.replace(t, "")
+        t = openTail.replace(t, "")
+        t = officialMention.replace(t, "")
+        t = qualityTag.replace(t, "")
+        t = lyricsTail.replace(t, "")
+        t = t.trim().trimEnd('(', '[', '{', '-', '–', '|', ' ')
+        return t.ifBlank { raw }
+    }
+
+    /** « NinhoVEVO », « Ninho - Topic », « Ninho Officiel » → « Ninho ». */
+    private val artistJunk = Regex("""(?:\s*-\s*topic|vevo|\s+(?:officiel|official|channel))\s*$""", RegexOption.IGNORE_CASE)
+
+    fun cleanArtist(raw: String): String {
+        var a = spaces.replace(raw, " ").trim()
+        repeat(2) { a = artistJunk.replace(a, "").trim() }
+        return a.ifBlank { raw.trim() }
     }
 
     private val featSplit = Regex("""\s+(?:feat\.?|ft\.?|featuring)\s+|\s*,\s*|\s+&\s+(?!the\b)|\s+x\s+|\s*;\s*|\s+/\s+""", RegexOption.IGNORE_CASE)

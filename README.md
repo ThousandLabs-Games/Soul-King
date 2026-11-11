@@ -77,6 +77,11 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 
 ## Nouveautés
 
+### Version 1.10
+- Ma musique : les noms importés depuis Tone Dial sont maintenant nettoyés eux aussi
+- Nettoyage élargi : « Musique officielle », « Clip officiel », « Official Music Video » même sans parenthèses, qualité (1080p, HD), texte après « | » ou « // », titres coupés par les sites
+- Artistes : « VEVO » et « - Topic » retirés des noms de chaînes
+
 ### Version 1.9
 - Dernière manche à points doubles, désactivable dans les réglages
 - En solo : record personnel pour chaque thème, et « Nouveau record » sur le podium

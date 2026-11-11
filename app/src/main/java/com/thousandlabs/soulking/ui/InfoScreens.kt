@@ -223,11 +223,10 @@ fun AboutScreen(vm: GameViewModel) {
 
             SectionTitle("Nouveautés de la version ${BuildConfig.VERSION_NAME}")
             ReleaseNotes(listOf(
-                "Dernière manche à points doubles, pour garder le suspense jusqu'au bout (désactivable dans les réglages)",
-                "En solo : record personnel pour chaque thème, et « Nouveau record » sur le podium",
-                "Ma musique : noms de téléchargement nettoyés comme dans Tone Dial, beaucoup plus d'artistes reconnus",
-                "Import du catalogue Tone Dial : noms corrigés, openings, favoris, plus écoutés et playlists",
-                "Génériques : versions officielles et d'avant 2023 privilégiées, bouton « Mauvaise version ? »",
+                "Ma musique : les noms importés depuis Tone Dial sont maintenant nettoyés eux aussi",
+                "Nettoyage élargi : « Musique officielle », « Clip officiel », « Official Music Video » même sans parenthèses, qualité (1080p, HD), texte après « | » ou « // », titres coupés par les sites",
+                "Artistes : « VEVO » et « - Topic » retirés des noms de chaînes",
+                "Dernière manche à points doubles et record personnel en solo",
             ))
 
             SectionTitle("Vos données")

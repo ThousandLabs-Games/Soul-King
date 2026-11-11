@@ -67,8 +67,13 @@ object LocalMusic {
                     var title: String
                     var artist: String?
                     if (tdSong != null && (override != null || tdSong.title.isNotBlank())) {
-                        title = override?.first ?: tdSong.title
-                        artist = (override?.second ?: tdSong.artist).takeUnless { TagCleaner.isUnknown(it) }
+                        // les noms de Tone Dial ne sont pas nettoyés là-bas (choix de l'utilisateur) : on le fait ici
+                        val cleaned = TagCleaner.clean(
+                            override?.first ?: tdSong.title,
+                            (override?.second ?: tdSong.artist).takeUnless { TagCleaner.isUnknown(it) },
+                        )
+                        title = cleaned.title
+                        artist = cleaned.artist
                     } else {
                         // 2. nettoyage des noms de téléchargement : sites, (Official Video), numéros, noms collés…
                         val fromTags = TagCleaner.clean(tagTitle, tagArtist)
