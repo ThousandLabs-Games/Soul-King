@@ -88,4 +88,22 @@ object Prefs {
 
     fun unbanAll() = putString("banned", "[]")
     fun bannedCount(): Int = list("banned").size
+
+    // ---- version retenue pour chaque morceau choisi à la main : toujours la même, chargement plus rapide ----
+    private fun choices(): JSONObject = runCatching { JSONObject(getString("choices") ?: "{}") }.getOrDefault(JSONObject())
+
+    @Synchronized
+    fun choice(key: String): Long? {
+        val o = choices()
+        return if (o.has(key)) o.optLong(key) else null
+    }
+
+    @Synchronized
+    fun setChoice(key: String, id: Long) {
+        val o = choices()
+        o.put(key, id)
+        putString("choices", o.toString())
+    }
+
+    fun clearChoices() = putString("choices", "{}")
 }

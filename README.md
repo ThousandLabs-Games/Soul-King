@@ -70,7 +70,13 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 
 ## Nouveautés
 
-### Version 1.5
+### Version 1.7
+- Génériques et tubes : la version officielle passe avant les reprises de compilations (Phinéas et Ferb…)
+- Les génériques d'avant 2023 passent avant les nouvelles versions et les reboots (Dragon Ball Z, Teen Titans, Ben 10, Tortues Ninja…)
+- La version trouvée est gardée : le même générique revient à chaque fois, et le chargement est plus rapide
+- Une version écartée avec « Mauvaise version ? » est aussitôt remplacée par une autre à la partie suivante
+
+### Version 1.6
 - Génériques : plus de versions instrumentales pour les dessins animés qui ont des paroles (Bob l'éponge…)
 - Les musiques de films ne sont plus prises pour des génériques (Avatar, Kung Fu Panda, Lilo et Stitch…)
 - Si la version française d'un générique est introuvable, l'appli cherche la version originale

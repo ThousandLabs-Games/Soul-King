@@ -28,7 +28,12 @@ data class Curated(
     val needsMarker: Boolean = false,
     /** Générique sans paroles à l'origine : une version instrumentale est la bonne. */
     val instrumentalOk: Boolean = false,
+    /** Mots qui signalent une autre version (suite, reboot récent) : résultat refusé. */
+    val exclude: List<String> = emptyList(),
 )
+
+/** Écarte les autres versions de l'émission (suites, reboots). */
+private fun Curated.except(vararg words: String) = copy(exclude = exclude + words)
 
 private fun Curated.instrumental() = copy(instrumentalOk = true)
 
@@ -406,20 +411,20 @@ object Themes {
             cartoon("Monster Buster Club"),
             cartoonOriginal("Souvenirs de Gravity Falls", "Gravity Falls main title theme", "Gravity Falls").instrumental(),
             cartoonOriginal("Kung Fu Panda : L'Incroyable Légende", "Kung Fu Panda Legends of Awesomeness theme", "Legends of Awesomeness"),
-            cartoon("Dragon Ball Z", "Dragon Ball"),
+            cartoon("Dragon Ball Z").except("super", "kai", "gt", "daima", "heroes"),
             cartoon("Code Lyoko", "Un monde sans danger"),
             cartoon("Totally Spies"),
             cartoon("Bob l'éponge"),
             cartoon("Oggy et les Cafards", "Oggy").instrumental(),
             cartoon("Kim Possible"),
             cartoon("Phinéas et Ferb", "Phineas"),
-            cartoon("Ben 10"),
+            cartoon("Ben 10").except("2016", "reboot"),
             cartoon("Les Supers Nanas", "Powerpuff"),
             cartoon("Le Laboratoire de Dexter", "Dexter"),
             cartoon("Johnny Test"),
             cartoon("Danny Fantôme", "Danny Phantom"),
-            cartoonOriginal("Avatar, le dernier maître de l'air", "Avatar The Last Airbender main title theme", "Last Airbender", "dernier maître de l'air").instrumental(),
-            cartoonOriginal("Teen Titans", "Teen Titans Theme Puffy AmiYumi"),
+            cartoonOriginal("Avatar, le dernier maître de l'air", "Avatar The Last Airbender main title theme", "Last Airbender", "dernier maître de l'air").instrumental().except("korra", "pandora", "horner"),
+            cartoonOriginal("Teen Titans", "Teen Titans Theme Puffy AmiYumi").except("go"),
             cartoon("Winx Club"),
             cartoon("W.I.T.C.H.", "Witch"),
             cartoon("Martin Mystère"),
@@ -434,7 +439,7 @@ object Themes {
             cartoon("Olive et Tom"),
             cartoon("Zig et Sharko").instrumental(),
             cartoon("Lilo et Stitch, la série", "Lilo & Stitch The Series"),
-            cartoon("Les Tortues Ninja"),
+            cartoon("Les Tortues Ninja").except("rise", "1987", "mutant mayhem", "chaos mutant"),
             cartoon("Titeuf"),
             cartoon("Les Zinzins de l'espace"),
             cartoon("Foster, la maison des amis imaginaires", "Foster"),

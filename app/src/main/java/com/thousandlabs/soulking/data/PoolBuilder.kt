@@ -167,13 +167,20 @@ object PoolBuilder {
                                 add("$english theme song" to c.copy(alts = c.alts + english))
                             }
                         }
-                        var found: Track? = null
-                        for ((q, check) in attempts) {
-                            // parmi les résultats valides, la version la plus écoutée : c'est l'originale
-                            found = Deezer.searchTracks(q, 15)
-                                .filter { !isJunk(it) && matchesCurated(it, check) }
-                                .maxByOrNull { it.rank }
-                            if (found != null) break
+                        // la version déjà retenue, sauf si elle a été écartée (« Mauvaise version ? »)
+                        val choiceKey = "${def.id}|${norm(c.title)}|${norm(c.artist)}"
+                        var found: Track? = Prefs.choice(choiceKey)
+                            ?.let { id -> Deezer.track(id) }
+                            ?.takeIf { !isJunk(it) }
+                        if (found == null) {
+                            for ((q, check) in attempts) {
+                                // parmi les résultats valides : la version officielle et ancienne d'abord, puis la plus écoutée
+                                found = Deezer.searchTracks(q, 15)
+                                    .filter { !isJunk(it) && matchesCurated(it, check) }
+                                    .maxWithOrNull(compareBy<Track>({ versionScore(it) }, { it.rank }))
+                                if (found != null) break
+                            }
+                            found?.deezerId?.let { Prefs.setChoice(choiceKey, it) }
                         }
                         found
                             ?.let { listOf(it.copy(anime = c.anime ?: def.forceAnime)) }
@@ -186,6 +193,28 @@ object PoolBuilder {
         }
         val all = (artistJobs + playlistJobs + curatedJobs).awaitAll().flatten()
         if (def.forceAnime != null) all.map { if (it.anime == null) it.copy(anime = def.forceAnime, artKind = ArtKind.ANIME) else it } else all
+    }
+
+    /** Artistes de compilations qui réenregistrent les génériques : souvent des reprises. */
+    private val coverMaker = Regex(
+        """\b(kids?|kidz|enfants|comptines|tv themes?|theme players|tv theme|cartoon kids|band|orchestra|orchestre|singers|allstars|all stars|music factory|anime kei|studio|chorale|la bande|baby|les petits|crew|ensemble|project|academy|tribute|cover)\b""",
+    )
+
+    /** Indices d'une version officielle : studio, chaîne, bande originale. */
+    private val officialHint = Regex("""\b(disney|nickelodeon|cartoon network|warner|cast|original|soundtrack|bande originale|ost|officiel|official)\b""")
+
+    /** Indices d'un générique récent (nouvelle saison, reboot) : moins connu de la Gen Z. */
+    private val recentHint = Regex("""\b(202[3-9]|nouvelle version|new version|reboot|nouveau generique|new theme)\b""")
+
+    /** Plus le score est haut, plus la version a de chances d'être l'officielle connue de tous. */
+    private fun versionScore(t: Track): Int {
+        val artist = normKeep(t.artist)
+        val rest = normKeep(listOfNotNull(t.rawTitle, t.album).joinToString(" "))
+        var score = 0
+        if (coverMaker.containsMatchIn(artist)) score -= 4
+        if (officialHint.containsMatchIn("$artist $rest")) score += 2
+        if (recentHint.containsMatchIn(rest)) score -= 3
+        return score
     }
 
     private val stopWords = setOf("les", "le", "la", "et", "de", "des", "du", "the", "and", "l", "d")
@@ -201,6 +230,7 @@ object PoolBuilder {
             // (sinon « Les Simpson » trouverait une chanson de Jessica Simpson)
             val hay = normKeep(listOfNotNull(t.rawTitle, t.title, t.album).joinToString(" "))
             if (c.needsMarker && !themeMarker.containsMatchIn(hay)) return false
+            if (hasExcluded(t, c)) return false
             return (listOf(c.title) + c.alts).any { name ->
                 val words = normKeep(name).split(" ").filter { it.length >= 2 && it !in stopWords }
                 words.isNotEmpty() && words.all { w -> Regex("\\b${Regex.escape(w)}").containsMatchIn(hay) }
@@ -211,9 +241,15 @@ object PoolBuilder {
             val want = norm(title)
             want.isNotEmpty() && (got == want || got.startsWith("$want ") || (want.length >= 5 && got.contains(want)))
         }
-        if (!titleOk) return false
+        if (!titleOk || hasExcluded(t, c)) return false
         val wantArtist = norm(c.artist).split(" ").filter { it.length >= 2 }
         val gotArtist = norm(t.artist)
         return wantArtist.isEmpty() || wantArtist.any { gotArtist.contains(it) }
+    }
+
+    private fun hasExcluded(t: Track, c: Curated): Boolean {
+        if (c.exclude.isEmpty()) return false
+        val all = normKeep(listOfNotNull(t.rawTitle, t.title, t.album, t.artist).joinToString(" "))
+        return c.exclude.any { w -> Regex("\\b${Regex.escape(normKeep(w))}\\b").containsMatchIn(all) }
     }
 }
