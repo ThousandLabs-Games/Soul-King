@@ -8,10 +8,21 @@ enum class AnswerMode(val label: String) {
     ORAL("À l'oral"),
 }
 
+/** Ordre figé : la position est enregistrée dans les réglages. */
 enum class GuessTarget(val label: String) {
     TITLE("Le titre"),
+    /** Toujours le chanteur ou le groupe. */
     ARTIST("L'artiste"),
     BOTH("Titre et artiste"),
+    /** L'animé ou le dessin animé d'où vient le morceau. */
+    SHOW("L'animé"),
+}
+
+/** Ordre figé : la position est enregistrée dans les réglages. */
+enum class StartMode(val label: String) {
+    HOOK("Le moment le plus connu"),
+    RANDOM("Au hasard"),
+    BEGINNING("Depuis le début"),
 }
 
 data class GameConfig(
@@ -19,7 +30,7 @@ data class GameConfig(
     val clipSec: Int = 5,
     val answer: AnswerMode = AnswerMode.QCM,
     val target: GuessTarget = GuessTarget.BOTH,
-    val randomStart: Boolean = true,
+    val start: StartMode = StartMode.HOOK,
     val includeLocal: Boolean = true,
     val sounds: Boolean = true,
     val vibrations: Boolean = true,
@@ -29,7 +40,7 @@ data class GameConfig(
         Prefs.putInt("cfg_clip", clipSec)
         Prefs.putInt("cfg_answer", answer.ordinal)
         Prefs.putInt("cfg_target", target.ordinal)
-        Prefs.putBool("cfg_random", randomStart)
+        Prefs.putInt("cfg_start", start.ordinal)
         Prefs.putBool("cfg_local", includeLocal)
         Prefs.putBool("cfg_sounds", sounds)
         Prefs.putBool("cfg_vibrations", vibrations)
@@ -44,7 +55,7 @@ data class GameConfig(
             clipSec = Prefs.getInt("cfg_clip", 5).takeIf { it in CLIP_CHOICES } ?: 5,
             answer = AnswerMode.entries.getOrElse(Prefs.getInt("cfg_answer", 0)) { AnswerMode.QCM },
             target = GuessTarget.entries.getOrElse(Prefs.getInt("cfg_target", 2)) { GuessTarget.BOTH },
-            randomStart = Prefs.getBool("cfg_random", true),
+            start = StartMode.entries.getOrElse(Prefs.getInt("cfg_start", 0)) { StartMode.HOOK },
             includeLocal = Prefs.getBool("cfg_local", true),
             sounds = Prefs.getBool("cfg_sounds", true),
             vibrations = Prefs.getBool("cfg_vibrations", true),
@@ -75,8 +86,8 @@ data class GameUi(
     val sourceName: String = "",
     val answerMode: AnswerMode = AnswerMode.QCM,
     val target: GuessTarget = GuessTarget.BOTH,
-    /** « l'artiste » ou « l'animé », selon les morceaux de la partie. */
-    val whoWord: String = "l'artiste",
+    /** « l'animé » ou « le dessin animé », selon le thème. */
+    val showWord: String = "l'animé",
     val players: List<PlayerState> = emptyList(),
     val roundIndex: Int = 0,
     val roundCount: Int = 0,
@@ -92,6 +103,8 @@ data class GameUi(
     val progress: Float = 0f,
     val outcome: Outcome? = null,
     val showAnswer: Boolean = false,
+    /** Le moment le plus connu de ce morceau a été marqué. */
+    val hookMarked: Boolean = false,
     /** Message bref affiché pendant la manche. */
     val flash: String? = null,
     /** Information sur la partie entière. */
@@ -103,7 +116,8 @@ data class GameUi(
     val prompt: String
         get() = when (target) {
             GuessTarget.TITLE -> "Trouvez le titre"
-            GuessTarget.ARTIST -> "Trouvez $whoWord"
-            GuessTarget.BOTH -> "Trouvez le titre et $whoWord"
+            GuessTarget.ARTIST -> "Trouvez l'artiste"
+            GuessTarget.BOTH -> "Trouvez le titre et l'artiste"
+            GuessTarget.SHOW -> "Trouvez $showWord"
         }
 }

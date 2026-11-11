@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Groups
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import coil.imageLoader
 import com.thousandlabs.soulking.BuildConfig
 import com.thousandlabs.soulking.data.Prefs
 import com.thousandlabs.soulking.game.GameViewModel
@@ -78,13 +80,18 @@ fun HowToScreen(vm: GameViewModel) {
             GuideCard(Icons.Outlined.Tune, "3. Les réglages", listOf(
                 "Nombre de manches, durée de l'extrait (2 à 15 secondes).",
                 "Réponse en 4 propositions, ou à l'oral avec un arbitre qui valide.",
-                "Deviner le titre, l'artiste (ou l'animé), ou les deux.",
-                "Extrait au hasard dans le morceau, ou depuis le début.",
+                "Deviner le titre, l'artiste (le chanteur), les deux, ou l'animé pour les thèmes animés.",
+                "Extrait : le moment le plus connu, au hasard dans le morceau, ou depuis le début.",
             ))
             GuideCard(Icons.Outlined.Bolt, "4. Pendant la manche", listOf(
                 "Le premier qui appuie sur sa zone répond. La musique se met en pause.",
                 "Mauvaise réponse : 50 points en moins et le joueur est bloqué jusqu'à la manche suivante. Les autres peuvent encore tenter.",
                 "Extrait fini sans réponse : les buzzers restent ouverts. « Réécouter » rejoue l'extrait, mais les points sont divisés par deux.",
+            ))
+            GuideCard(Icons.Outlined.Bookmark, "Le moment le plus connu", listOf(
+                "Avec ce réglage, l'extrait part du refrain : en ligne, l'extrait officiel est souvent pris autour de lui ; pour vos fichiers, il est estimé.",
+                "Pendant la révélation, le morceau continue : touchez « Retenir ce passage » au bon moment.",
+                "La fois suivante, ce morceau démarrera exactement là. Touchez à nouveau pour oublier le passage.",
             ))
             GuideCard(Icons.Outlined.EmojiEvents, "5. Les points", listOf(
                 "Bonne réponse : 100 points, plus jusqu'à 100 points de bonus selon la rapidité.",
@@ -120,6 +127,7 @@ private fun GuideCard(icon: ImageVector, title: String, lines: List<String>) {
 
 // ---------------------------------------------------------------- à propos, mises à jour, nouveautés
 
+@OptIn(coil.annotation.ExperimentalCoilApi::class)
 @Composable
 fun AboutScreen(vm: GameViewModel) {
     val uri = LocalUriHandler.current
@@ -127,6 +135,7 @@ fun AboutScreen(vm: GameViewModel) {
     val state by Updater.state.collectAsState()
     var auto by remember { mutableStateOf(Updater.autoEnabled()) }
     var recent by remember { mutableStateOf(Prefs.recentCount()) }
+    var cacheBytes by remember { mutableStateOf(cacheSize(ctx.cacheDir)) }
 
     Column(Modifier.fillMaxSize()) {
         TopBar("À propos", onBack = vm::back)
@@ -203,6 +212,16 @@ fun AboutScreen(vm: GameViewModel) {
             }
 
             SectionTitle("Nouveautés")
+            ReleaseNotes("Version 1.3", listOf(
+                "Thèmes refaits pour la Gen Z : Rap US, R&B US, Rap français, Hits mondiaux et Classiques",
+                "Nouveau réglage « Le moment le plus connu » : l'extrait part du refrain",
+                "« Retenir ce passage » pendant la révélation : le morceau démarrera là la prochaine fois",
+                "« L'artiste » désigne toujours le chanteur, et « L'animé » devient un choix à part",
+                "En « Titre et artiste », le chanteur s'affiche sous chaque proposition, même dans les thèmes animés",
+                "Génériques : version originale quand c'est elle qu'on connaît (Ninjago, Teen Titans, Sonic X…)",
+                "Fini les remix, reprises et versions IA : l'appli garde la version la plus écoutée",
+                "Pochettes plus légères, cache limité à 5 Mo et bouton pour vider les fichiers temporaires",
+            ))
             ReleaseNotes("Version 1.2", listOf(
                 "Spécial One Piece : les 29 openings, jusqu'à UUUUUS!, Tenshi to Akuma, Carmine et Luminous",
                 "Hits mondiaux refait : près de 90 tubes planétaires choisis un par un",
@@ -241,6 +260,22 @@ fun AboutScreen(vm: GameViewModel) {
                 )
             }
 
+            SectionTitle("Stockage")
+            InfoCard {
+                Text(
+                    "Fichiers temporaires : ${formatBytes(cacheBytes)}. Les pochettes sont limitées à 5 Mo et les plus anciennes s'effacent d'elles-mêmes.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Sk.TextDim,
+                )
+                Spacer(Modifier.height(12.dp))
+                GhostButton("Vider les fichiers temporaires", null, onClick = {
+                    runCatching { ctx.imageLoader.diskCache?.clear() }
+                    runCatching { ctx.imageLoader.memoryCache?.clear() }
+                    runCatching { ctx.cacheDir.listFiles()?.forEach { it.deleteRecursively() } }
+                    cacheBytes = cacheSize(ctx.cacheDir)
+                }, modifier = Modifier.fillMaxWidth())
+            }
+
             SectionTitle("Liens officiels")
             LinkRow(Icons.Outlined.Code, "Dépôt GitHub de Soul King", REPO_URL) { uri.openUri(REPO_URL) }
             LinkRow(Icons.Outlined.SystemUpdate, "Toutes les versions", RELEASES_URL) { uri.openUri(RELEASES_URL) }
@@ -248,6 +283,14 @@ fun AboutScreen(vm: GameViewModel) {
             Spacer(Modifier.height(16.dp))
         }
     }
+}
+
+private fun cacheSize(dir: java.io.File): Long =
+    runCatching { dir.walkTopDown().filter { it.isFile }.sumOf { it.length() } }.getOrDefault(0L)
+
+private fun formatBytes(b: Long): String = when {
+    b < 1024 * 1024 -> "${b / 1024} Ko"
+    else -> "%.1f Mo".format(b / (1024.0 * 1024.0)).replace('.', ',')
 }
 
 @Composable

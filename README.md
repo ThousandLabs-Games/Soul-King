@@ -23,7 +23,7 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 ## Comment jouer
 
 ### 1. Choisir la musique
-- **Thèmes prêts à jouer** : Rap US, Drill, R&B US, Grands classiques, Hits mondiaux, Hits du moment, Openings cultes, Spécial One Piece (29 openings), Génériques de dessins animés (chaînes francophones), Rap français.
+- **Thèmes prêts à jouer** : Rap US, Drill, R&B US, Classiques, Hits mondiaux, Hits du moment, Openings cultes, Spécial One Piece (29 openings), Génériques de dessins animés (chaînes francophones), Rap français.
 - **Recherche libre** : tapez un artiste, un genre ou un animé. Soul King trouve les morceaux tout seul (artiste, playlists, titres liés).
 - **Ma musique** : jouez avec les morceaux du téléphone, même sans connexion. Toute la bibliothèque, un artiste ou un animé.
 - **Mode mixte** : dans les thèmes, l'option « Ajouter mes morceaux » mélange vos fichiers aux extraits en ligne. Idéal pour compléter Spécial One Piece avec vos openings.
@@ -37,8 +37,9 @@ Chaque version est signée avec la clé de Soul King. Android refuse toute mise 
 - Manches : 10, 15, 20 ou 30.
 - Durée de l'extrait : 2, 5, 10 ou 15 secondes.
 - Réponse : 4 propositions, ou à l'oral avec un arbitre qui valide (il peut afficher la réponse discrètement).
-- À deviner : le titre, l'artiste (ou l'animé), ou les deux.
-- Extrait : au hasard dans le morceau, ou depuis le début.
+- À deviner : le titre, l'artiste (le chanteur), les deux, ou l'animé pour les thèmes animés.
+- Extrait : le moment le plus connu, au hasard dans le morceau, ou depuis le début.
+- Le moment le plus connu : pendant la révélation, touchez « Retenir ce passage » au bon moment ; la fois suivante, le morceau démarrera là.
 - Sons et vibrations activables.
 
 ### 4. Pendant la manche
@@ -66,6 +67,16 @@ Nommez vos fichiers `One Piece Opening 25 - The Peak` : Soul King reconnaît l'a
 ---
 
 ## Nouveautés
+
+### Version 1.3
+- Thèmes refaits pour la Gen Z : Rap US, R&B US, Rap français, Hits mondiaux et Classiques
+- Nouveau réglage « Le moment le plus connu » : l'extrait part du refrain
+- « Retenir ce passage » pendant la révélation : le morceau démarrera là la prochaine fois
+- « L'artiste » désigne toujours le chanteur, et « L'animé » devient un choix à part
+- En « Titre et artiste », le chanteur s'affiche sous chaque proposition, même dans les thèmes animés
+- Génériques : version originale quand c'est elle qu'on connaît (Ninjago, Teen Titans, Sonic X, Adventure Time…)
+- Fini les remix, reprises et versions IA : l'appli garde la version la plus écoutée
+- Pochettes plus légères, cache limité à 5 Mo et bouton « Vider les fichiers temporaires » dans À propos
 
 ### Version 1.2
 - Spécial One Piece : les 29 openings, jusqu'à *UUUUUS!*, *Tenshi to Akuma*, *Carmine* et *Luminous*

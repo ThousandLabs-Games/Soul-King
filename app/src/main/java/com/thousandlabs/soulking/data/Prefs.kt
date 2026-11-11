@@ -55,4 +55,26 @@ object Prefs {
         o.put(name.lowercase(), id)
         putString("artist_ids", o.toString())
     }
+
+    // ---- moment le plus connu de chaque morceau, marqué par l'utilisateur ----
+    private fun hooks(): JSONObject = runCatching { JSONObject(getString("hooks") ?: "{}") }.getOrDefault(JSONObject())
+
+    fun hook(key: String): Long? {
+        val o = hooks()
+        return if (o.has(key)) o.optLong(key) else null
+    }
+
+    fun setHook(key: String, ms: Long) {
+        val o = hooks()
+        o.put(key, ms)
+        putString("hooks", o.toString())
+    }
+
+    fun clearHook(key: String) {
+        val o = hooks()
+        o.remove(key)
+        putString("hooks", o.toString())
+    }
+
+    fun hookCount(): Int = hooks().length()
 }

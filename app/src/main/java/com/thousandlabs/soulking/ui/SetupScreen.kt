@@ -42,10 +42,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.thousandlabs.soulking.data.Source
+import com.thousandlabs.soulking.data.showLike
 import com.thousandlabs.soulking.game.AnswerMode
 import com.thousandlabs.soulking.game.GameConfig
 import com.thousandlabs.soulking.game.GameViewModel
 import com.thousandlabs.soulking.game.GuessTarget
+import com.thousandlabs.soulking.game.StartMode
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -207,8 +209,10 @@ fun SetupScreen(vm: GameViewModel, ensureAudio: (() -> Unit) -> Unit) {
                 )
             } else item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    GuessTarget.entries.forEach { t ->
-                        SkChip(t.label, cfg.target == t, onClick = { vm.updateConfig { it.copy(target = t) } })
+                    val options = GuessTarget.entries.filter { it != GuessTarget.SHOW || src.showLike }
+                    val current = if (cfg.target == GuessTarget.SHOW && !src.showLike) GuessTarget.ARTIST else cfg.target
+                    options.forEach { t ->
+                        SkChip(t.label, current == t, onClick = { vm.updateConfig { it.copy(target = t) } })
                     }
                 }
             }
@@ -216,9 +220,18 @@ fun SetupScreen(vm: GameViewModel, ensureAudio: (() -> Unit) -> Unit) {
             item { SectionTitle("Extrait") }
             item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SkChip("Au hasard dans le morceau", cfg.randomStart, onClick = { vm.updateConfig { it.copy(randomStart = true) } })
-                    SkChip("Depuis le début", !cfg.randomStart, onClick = { vm.updateConfig { it.copy(randomStart = false) } })
+                    StartMode.entries.forEach { m ->
+                        SkChip(m.label, cfg.start == m, onClick = { vm.updateConfig { it.copy(start = m) } })
+                    }
                 }
+            }
+            if (cfg.start == StartMode.HOOK) item {
+                Text(
+                    "En ligne, l'extrait officiel est souvent pris autour du refrain. Pour vos fichiers, le passage est estimé. " +
+                        "Pendant la révélation, touchez « Retenir ce passage » au bon moment : le morceau démarrera là la prochaine fois.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Sk.TextDim,
+                )
             }
 
             item { SectionTitle("Ambiance") }

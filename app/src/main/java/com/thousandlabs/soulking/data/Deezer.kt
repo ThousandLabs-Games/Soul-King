@@ -78,7 +78,8 @@ object Deezer {
         val artist = o.optJSONObject("artist")?.str("name")?.trim().orEmpty()
         if (id == 0L || title.isBlank() || artist.isBlank()) return null
         val album = o.optJSONObject("album")
-        val cover = album?.str("cover_xl")?.ifBlank { null } ?: album?.str("cover_big")?.ifBlank { null }
+        // 500 px suffisent pour l'écran de révélation, et pèsent quatre fois moins que la version 1000 px
+        val cover = album?.str("cover_big")?.ifBlank { null } ?: album?.str("cover_medium")?.ifBlank { null }
         return Track(
             key = "dz:$id",
             title = title,
@@ -89,6 +90,7 @@ object Deezer {
             deezerId = id,
             album = album?.str("title")?.ifBlank { null },
             rawTitle = o.str("title").ifBlank { null },
+            rank = o.optInt("rank"),
         )
     }
 

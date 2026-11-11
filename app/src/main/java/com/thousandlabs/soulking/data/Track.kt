@@ -22,6 +22,8 @@ data class Track(
     /** Album et titre complet : servent seulement à vérifier les morceaux choisis à la main. */
     val album: String? = null,
     val rawTitle: String? = null,
+    /** Popularité sur Deezer : entre deux versions, on garde la plus écoutée (l'originale). */
+    val rank: Int = 0,
 ) {
     val isLocal: Boolean get() = localUri != null
 

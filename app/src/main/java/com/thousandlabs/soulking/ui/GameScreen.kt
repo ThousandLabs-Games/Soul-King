@@ -31,6 +31,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EmojiEvents
@@ -399,7 +401,11 @@ private fun Answering(g: GameUi, vm: GameViewModel) {
                     if (g.showAnswer && track != null) {
                         Column(Modifier.weight(1f)) {
                             Text(track.title, style = MaterialTheme.typography.titleMedium, color = Sk.Text)
-                            Text(track.who + (track.label?.let { " · $it" } ?: ""), style = MaterialTheme.typography.bodySmall, color = Sk.TextDim)
+                            Text(
+                                listOfNotNull(track.artist, track.anime?.takeIf { !it.equals(track.artist, true) }, track.label).joinToString(" · "),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Sk.TextDim,
+                            )
                         }
                     } else {
                         Text("Afficher la réponse (arbitre)", style = MaterialTheme.typography.titleMedium, color = Sk.Text, modifier = Modifier.weight(1f))
@@ -453,7 +459,7 @@ private fun Reveal(g: GameUi, vm: GameViewModel) {
         Box(Modifier.scale(appear)) { Cover(track.cover, 210.dp, corner = 22.dp) }
         Spacer(Modifier.height(16.dp))
         // quand on devine l'animé ou le dessin animé, c'est lui qu'on met en avant
-        val showFirst = g.target == GuessTarget.ARTIST && track.anime != null
+        val showFirst = g.target == GuessTarget.SHOW && track.anime != null
         Text(if (showFirst) track.anime ?: track.title else track.title, style = MaterialTheme.typography.headlineSmall, color = Sk.Text, textAlign = TextAlign.Center)
         Text(
             buildString {
@@ -513,7 +519,33 @@ private fun Reveal(g: GameUi, vm: GameViewModel) {
         } else {
             Text("Score : ${g.players.first().score} pts", style = MaterialTheme.typography.titleLarge, color = Sk.Gold)
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Sk.Surface)
+                .clickable { if (g.hookMarked) vm.clearHook() else vm.markHook() }
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(if (g.hookMarked) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkAdd, null, tint = Sk.Gold)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (g.hookMarked) "Passage retenu" else "Retenir ce passage",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Sk.Text,
+                )
+                Text(
+                    if (g.hookMarked) "Touchez pour l'oublier. Touchez à nouveau pendant la bonne partie pour le remplacer."
+                    else "Touchez pendant le moment le plus connu : la prochaine fois, l'extrait démarrera là",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Sk.TextDim,
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
         GoldButton(
             text = if (g.isLastRound) "Voir le podium" else "Manche suivante",
             icon = if (g.isLastRound) Icons.Outlined.EmojiEvents else Icons.AutoMirrored.Outlined.ArrowForward,

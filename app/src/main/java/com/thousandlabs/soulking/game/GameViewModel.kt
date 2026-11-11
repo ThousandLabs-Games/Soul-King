@@ -19,6 +19,7 @@ import com.thousandlabs.soulking.data.Prefs
 import com.thousandlabs.soulking.data.Source
 import com.thousandlabs.soulking.data.Track
 import com.thousandlabs.soulking.data.norm
+import com.thousandlabs.soulking.data.showLike
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -242,22 +243,29 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 spares.clear()
                 spares.addAll(ordered.drop(count))
 
-                // deviner l'artiste n'a pas de sens si tous les morceaux sont du même artiste
-                val distinctWho = built.map { norm(it.who) }.distinct().size
+                // choix de ce qu'on devine, selon ce que contient vraiment la partie
                 val themeDef = (src as? Source.Theme)?.def
-                val target = when {
-                    themeDef?.whoOnly == true -> GuessTarget.ARTIST
-                    cfg.answer == AnswerMode.QCM && cfg.target != GuessTarget.TITLE && distinctWho < 4 -> GuessTarget.TITLE
+                val distinctArtists = built.map { norm(it.artist) }.distinct().size
+                val distinctShows = built.mapNotNull { it.anime?.let(::norm) }.distinct().size
+                val showsKnown = built.count { it.anime != null } * 2 >= built.size
+                val wanted = when {
+                    themeDef?.whoOnly == true -> GuessTarget.SHOW
+                    cfg.target == GuessTarget.SHOW && !(src.showLike && showsKnown) -> GuessTarget.ARTIST
                     else -> cfg.target
                 }
-                val animeShare = built.count { it.anime != null }.toFloat() / built.size
-                val whoWord = themeDef?.whoWord ?: if (animeShare >= 0.5f) "l'animé" else "l'artiste"
-
+                val qcm = cfg.answer == AnswerMode.QCM
+                val target = when {
+                    // en 4 propositions, il faut au moins 4 réponses différentes
+                    qcm && wanted == GuessTarget.SHOW && distinctShows < 4 -> GuessTarget.TITLE
+                    qcm && (wanted == GuessTarget.ARTIST || wanted == GuessTarget.BOTH) && distinctArtists < 4 -> GuessTarget.TITLE
+                    else -> wanted
+                }
+                val showWord = themeDef?.whoWord ?: "l'animé"
                 _game.update {
                     it.copy(
                         roundCount = count,
                         target = target,
-                        whoWord = whoWord,
+                        showWord = showWord,
                         notice = if (count < cfg.rounds) "Seulement $count morceaux disponibles : la partie compte $count manches." else null,
                     )
                 }
@@ -296,6 +304,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 progress = 0f,
                 outcome = null,
                 showAnswer = false,
+                hookMarked = Prefs.hook(track.key) != null,
             )
         }
         prepare(track)
@@ -322,15 +331,45 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun computeStart(t: Track): Long {
-        if (!gameCfg.randomStart) return 0L
-        return if (t.isLocal) {
-            val lo = (t.durationMs * 0.12).toLong()
-            val hi = (t.durationMs * 0.70).toLong() - clipMs
-            if (hi <= lo) 0L else Random.nextLong(lo, hi)
-        } else {
-            val hi = 30_000L - clipMs - 1_500L
-            if (hi <= 0L) 0L else Random.nextLong(0L, hi)
+        val maxStart = if (t.isLocal) (t.durationMs - clipMs - 500L).coerceAtLeast(0L) else (30_000L - clipMs - 500L).coerceAtLeast(0L)
+        return when (gameCfg.start) {
+            StartMode.BEGINNING -> 0L
+            StartMode.HOOK -> {
+                // 1. le passage que vous avez marqué ; 2. en ligne, l'extrait choisi par Deezer (souvent le refrain) ;
+                // 3. vos fichiers : estimation selon la durée (version TV d'un opening ou morceau complet)
+                val marked = Prefs.hook(t.key)
+                when {
+                    marked != null -> marked
+                    !t.isLocal -> 0L
+                    t.durationMs <= 120_000L -> (t.durationMs * 0.42).toLong()
+                    else -> (t.durationMs * 0.27).toLong()
+                }.coerceIn(0L, maxStart)
+            }
+            StartMode.RANDOM -> if (t.isLocal) {
+                val lo = (t.durationMs * 0.12).toLong()
+                val hi = (t.durationMs * 0.70).toLong() - clipMs
+                if (hi <= lo) 0L else Random.nextLong(lo, hi)
+            } else {
+                if (maxStart <= 0L) 0L else Random.nextLong(0L, maxStart)
+            }
         }
+    }
+
+    /** Pendant la révélation : retient le passage en cours comme le moment le plus connu du morceau. */
+    fun markHook() {
+        val g = _game.value
+        val t = g.track ?: return
+        if (g.stage != Stage.REVEAL) return
+        // on recule un peu : le temps de réagir en entendant le passage
+        val pos = (player.currentPosition - 1_500L).coerceAtLeast(0L)
+        Prefs.setHook(t.key, pos)
+        _game.update { it.copy(hookMarked = true) }
+    }
+
+    fun clearHook() {
+        val t = _game.value.track ?: return
+        Prefs.clearHook(t.key)
+        _game.update { it.copy(hookMarked = false) }
     }
 
     private fun startTicker() {
@@ -360,8 +399,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun makeChoices(track: Track, target: GuessTarget): List<Choice> {
         if (gameCfg.answer != AnswerMode.QCM) return emptyList()
-        fun label(t: Track) = if (target == GuessTarget.ARTIST) t.who else t.title
-        fun sub(t: Track) = if (target == GuessTarget.BOTH) t.who else null
+        fun label(t: Track) = when (target) {
+            GuessTarget.ARTIST -> t.artist
+            GuessTarget.SHOW -> t.who
+            GuessTarget.TITLE, GuessTarget.BOTH -> t.title
+        }
+        // en « titre et artiste », le chanteur s'affiche sous chaque titre
+        fun sub(t: Track) = if (target == GuessTarget.BOTH) t.artist else null
         val seen = hashSetOf(norm(label(track)))
         val wrong = pool.asSequence()
             .filter { it.key != track.key }

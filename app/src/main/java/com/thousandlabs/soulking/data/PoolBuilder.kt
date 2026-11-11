@@ -41,14 +41,36 @@ sealed interface Source {
     }
 }
 
+/** Thème ou sélection où l'on peut deviner l'animé (ou le dessin animé). */
+val Source.showLike: Boolean
+    get() = when (this) {
+        is Source.Theme -> def.forceAnime != null || def.localAnyAnime || def.whoOnly
+        is Source.Local -> filter.kind == LocalMusic.Kind.ANIME || filter.kind == LocalMusic.Kind.ALL
+        else -> false
+    }
+
 /** Prépare la liste de morceaux d'une partie, en coulisses. */
 object PoolBuilder {
 
-    /** Versions qui gâchent un blind test. */
+    /** Versions qui gâchent un blind test : reprises, remix, versions refaites par IA… */
     private val junk = Regex(
-        """\b(karaok[eé]|instrumental|8d audio|sped up|slowed|nightcore|piano version|lofi|lo-fi|cover|tribute|made famous)\b""",
+        """\b(karaok[eé]|instrumental version|8d audio|sped up|slowed|nightcore|piano version|lofi|lo-fi|cover|covers|tribute|made famous|remix|remixed|phonk|mashup|bass boosted|type beat|8 ?bit|ai cover|ai version|ai generated|version ia|ia version|suno|udio|acapella|a cappella|music box|lullaby|berceuse|parody|parodie)\b""",
         RegexOption.IGNORE_CASE,
     )
+
+    /** Pour les génériques, encore plus strict : aucune version retravaillée. */
+    private val looseJunk = Regex(
+        """\b(trap|drill|funk|techno|house|hardstyle|dubstep|rock version|metal|epic|orchestral|piano|guitar|guitare|beat|vibe|chill)\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /** Un générique officiel est presque toujours présenté comme tel. */
+    private val themeMarker = Regex(
+        """\b(generique|theme|opening|intro|title|main title|song|serie|series|tv|dessin|cartoon|original|soundtrack|bande originale)\b""",
+    )
+
+    private fun isJunk(t: Track): Boolean =
+        listOfNotNull(t.rawTitle, t.title, t.artist, t.album).any { junk.containsMatchIn(it) }
 
     fun matchesLocal(def: ThemeDef, t: Track): Boolean {
         def.localAnime?.let { anime ->
@@ -77,7 +99,7 @@ object PoolBuilder {
             is Source.Playlist -> Deezer.playlistTracks(source.id, 300)
             is Source.Search -> Deezer.searchTracks(source.query, 100)
             is Source.Local -> emptyList()
-        }.filterNot { junk.containsMatchIn(it.title) || junk.containsMatchIn(it.artist) }
+        }.filterNot { isJunk(it) }
 
         val locals: List<Track> = when (source) {
             is Source.Local -> LocalMusic.filter(local, source.filter)
@@ -131,7 +153,10 @@ object PoolBuilder {
             async {
                 gate.withPermit {
                     val r = runCatching {
-                        Deezer.searchTracks(c.query ?: "${c.title} ${c.artist}".trim(), 10).firstOrNull { matchesCurated(it, c) }
+                        // parmi les résultats valides, la version la plus écoutée : c'est l'originale
+                        Deezer.searchTracks(c.query ?: "${c.title} ${c.artist}".trim(), 15)
+                            .filter { !isJunk(it) && matchesCurated(it, c) }
+                            .maxByOrNull { it.rank }
                             ?.let { listOf(it.copy(anime = c.anime ?: def.forceAnime)) }
                     }.getOrNull() ?: emptyList()
                     tick()
@@ -149,7 +174,10 @@ object PoolBuilder {
     private fun matchesCurated(t: Track, c: Curated): Boolean {
         if (c.loose) {
             // générique : le nom de l'émission doit apparaître dans le titre complet, l'album ou l'artiste
-            val hay = normKeep(listOfNotNull(t.rawTitle, t.title, t.album, t.artist).joinToString(" "))
+            val texts = listOfNotNull(t.rawTitle, t.title, t.album, t.artist)
+            if (texts.any { looseJunk.containsMatchIn(it) }) return false
+            val hay = normKeep(texts.joinToString(" "))
+            if (c.needsMarker && !themeMarker.containsMatchIn(hay)) return false
             return (listOf(c.title) + c.alts).any { name ->
                 val words = normKeep(name).split(" ").filter { it.length >= 2 && it !in stopWords }
                 words.isNotEmpty() && words.all { w -> Regex("\\b${Regex.escape(w)}").containsMatchIn(hay) }
